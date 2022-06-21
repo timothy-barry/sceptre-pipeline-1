@@ -1,0 +1,64 @@
+Jun-21 11:36:25.360 [main] DEBUG nextflow.cli.Launcher - $> nextflow main.nf --multimodal_metadata_fp /Users/timbarry/research_offsite/external/gasperini-2019/at-scale/processed/multimodal/multimodal_metadata.rds --gene_odm_fp /Users/timbarry/research_offsite/external/gasperini-2019/at-scale/processed/gene/gasp_scale_gene_expressions.odm --gRNA_odm_fp --pair_fp /Users/timbarry/research_offsite/external/gasperini-2019/at-scale/processed/multimodal/pairs.rds
+Jun-21 11:36:25.452 [main] INFO  nextflow.cli.CmdRun - N E X T F L O W  ~  version 22.04.3
+Jun-21 11:36:25.469 [main] DEBUG nextflow.config.ConfigBuilder - Found config home: /Users/timbarry/.nextflow/config
+Jun-21 11:36:25.471 [main] DEBUG nextflow.config.ConfigBuilder - Parsing config file: /Users/timbarry/.nextflow/config
+Jun-21 11:36:25.496 [main] DEBUG nextflow.config.ConfigBuilder - Applying config profile: `standard`
+Jun-21 11:36:26.240 [main] DEBUG nextflow.cli.CmdRun - Applied DSL=1 by probing script field
+Jun-21 11:36:26.254 [main] INFO  nextflow.cli.CmdRun - Launching `main.nf` [chaotic_boyd] DSL1 - revision: e63634d1ca
+Jun-21 11:36:26.265 [main] DEBUG nextflow.plugin.PluginsFacade - Setting up plugin manager > mode=prod; plugins-dir=/Users/timbarry/.nextflow/plugins; core-plugins: nf-amazon@1.7.2,nf-azure@0.13.2,nf-console@1.0.3,nf-ga4gh@1.0.3,nf-google@1.1.4,nf-sqldb@0.4.0,nf-tower@1.4.0
+Jun-21 11:36:26.266 [main] DEBUG nextflow.plugin.PluginsFacade - Plugins default=[]
+Jun-21 11:36:26.275 [main] INFO  org.pf4j.DefaultPluginStatusProvider - Enabled plugins: []
+Jun-21 11:36:26.276 [main] INFO  org.pf4j.DefaultPluginStatusProvider - Disabled plugins: []
+Jun-21 11:36:26.278 [main] INFO  org.pf4j.DefaultPluginManager - PF4J version 3.4.1 in 'deployment' mode
+Jun-21 11:36:26.286 [main] INFO  org.pf4j.AbstractPluginManager - No plugins
+Jun-21 11:36:26.335 [main] DEBUG nextflow.Session - Session uuid: ab868684-ccbf-487b-baf1-c1128085b560
+Jun-21 11:36:26.335 [main] DEBUG nextflow.Session - Run name: chaotic_boyd
+Jun-21 11:36:26.336 [main] DEBUG nextflow.Session - Executor pool size: 8
+Jun-21 11:36:26.354 [main] DEBUG nextflow.cli.CmdRun - 
+  Version: 22.04.3 build 5703
+  Created: 18-05-2022 19:22 UTC (15:22 EDT)
+  System: Mac OS X 10.16
+  Runtime: Groovy 3.0.10 on OpenJDK 64-Bit Server VM 1.8.0_242-b08
+  Encoding: UTF-8 (UTF-8)
+  Process: 54128@huntsman-ve703-06105.apn.wlan.private.upenn.edu [10.103.87.238]
+  CPUs: 8 - Mem: 16 GB (745.6 MB) - Swap: 1 GB (760 MB)
+Jun-21 11:36:26.365 [main] DEBUG nextflow.Session - Work-dir: /Users/timbarry/research_offsite/work [Mac OS X]
+Jun-21 11:36:26.379 [main] DEBUG nextflow.executor.ExecutorFactory - Extension executors providers=[]
+Jun-21 11:36:26.389 [main] DEBUG nextflow.Session - Observer factory: DefaultObserverFactory
+Jun-21 11:36:26.417 [main] DEBUG nextflow.cache.CacheFactory - Using Nextflow cache factory: nextflow.cache.DefaultCacheFactory
+Jun-21 11:36:26.427 [main] DEBUG nextflow.util.CustomThreadPool - Creating default thread pool > poolSize: 9; maxThreads: 1000
+Jun-21 11:36:26.487 [main] DEBUG nextflow.Session - Session start invoked
+Jun-21 11:36:26.662 [main] DEBUG nextflow.script.ScriptRunner - > Launching execution
+Jun-21 11:36:26.671 [main] INFO  nextflow.script.BaseScript - /Users/timbarry/research_offsite/external/gasperini-2019/at-scale/processed/multimodal/multimodal_metadata.rds
+Jun-21 11:36:26.672 [main] INFO  nextflow.script.BaseScript - /Users/timbarry/research_offsite/external/gasperini-2019/at-scale/processed/gene/gasp_scale_gene_expressions.odm
+Jun-21 11:36:26.673 [main] INFO  nextflow.script.BaseScript - true
+Jun-21 11:36:26.673 [main] INFO  nextflow.script.BaseScript - /Users/timbarry/research_offsite/external/gasperini-2019/at-scale/processed/multimodal/pairs.rds
+Jun-21 11:36:26.757 [main] DEBUG nextflow.executor.ExecutorFactory - << taskConfig executor: null
+Jun-21 11:36:26.757 [main] DEBUG nextflow.executor.ExecutorFactory - >> processorType: 'local'
+Jun-21 11:36:26.761 [main] DEBUG nextflow.executor.Executor - [warm up] executor > local
+Jun-21 11:36:26.766 [main] DEBUG n.processor.LocalPollingMonitor - Creating local task monitor for executor 'local' > cpus=8; memory=16 GB; capacity=8; pollInterval=100ms; dumpInterval=5m
+Jun-21 11:36:26.870 [main] DEBUG nextflow.Session - Workflow process names [dsl1]: check_inputs
+Jun-21 11:36:26.871 [main] DEBUG nextflow.script.ScriptRunner - > Await termination 
+Jun-21 11:36:26.871 [main] DEBUG nextflow.Session - Session await
+Jun-21 11:36:26.934 [Actor Thread 3] ERROR nextflow.processor.TaskProcessor - Error executing process > 'check_inputs'
+
+Caused by:
+  Not a valid path value type: java.lang.Boolean (true)
+
+
+Tip: you can replicate the issue by changing to the process work dir and entering the command `bash .command.run`
+Jun-21 11:36:26.938 [Actor Thread 3] DEBUG nextflow.Session - Session aborted -- Cause: Not a valid path value type: java.lang.Boolean (true)
+Jun-21 11:36:26.954 [Actor Thread 3] DEBUG nextflow.Session - The following nodes are still active:
+[process] check_inputs
+  status=ACTIVE
+  port 0: (value) bound ; channel: multimodal_metadata_fp
+  port 1: (value) bound ; channel: gene_odm_fp
+  port 2: (value) bound ; channel: gRNA_odm_fp
+  port 3: (value) bound ; channel: pair_fp
+  port 4: (cntrl) -     ; channel: $
+
+Jun-21 11:36:26.956 [main] DEBUG nextflow.Session - Session await > all process finished
+Jun-21 11:36:26.956 [main] DEBUG nextflow.Session - Session await > all barriers passed
+Jun-21 11:36:26.961 [main] DEBUG nextflow.trace.WorkflowStatsObserver - Workflow completed > WorkflowStats[succeededCount=0; failedCount=0; ignoredCount=0; cachedCount=0; pendingCount=0; submittedCount=0; runningCount=0; retriesCount=0; abortedCount=0; succeedDuration=0ms; failedDuration=0ms; cachedDuration=0ms;loadCpus=0; loadMemory=0; peakRunning=0; peakCpus=0; peakMemory=0; ]
+Jun-21 11:36:27.160 [main] DEBUG nextflow.cache.CacheDB - Closing CacheDB done
+Jun-21 11:36:27.172 [main] DEBUG nextflow.script.ScriptRunner - > Execution complete -- Goodbye

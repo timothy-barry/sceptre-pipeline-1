@@ -1,0 +1,43 @@
+Jun-21 11:37:09.136 [main] DEBUG nextflow.cli.Launcher - $> nextflow main.nf --multimodal_metadata_fp /Users/timbarry/research_offsite/external/gasperini-2019/at-scale/processed/multimodal/multimodal_metadata.rds --gene_odm_fp /Users/timbarry/research_offsite/external/gasperini-2019/at-scale/processed/gene/gasp_scale_gene_expressions.odm --gRNA_odm_fp --pair_fp /Users/timbarry/research_offsite/external/gasperini-2019/at-scale/processed/multimodal/pairs.rds
+Jun-21 11:37:09.227 [main] INFO  nextflow.cli.CmdRun - N E X T F L O W  ~  version 22.04.3
+Jun-21 11:37:09.247 [main] DEBUG nextflow.config.ConfigBuilder - Found config home: /Users/timbarry/.nextflow/config
+Jun-21 11:37:09.249 [main] DEBUG nextflow.config.ConfigBuilder - Parsing config file: /Users/timbarry/.nextflow/config
+Jun-21 11:37:09.275 [main] DEBUG nextflow.config.ConfigBuilder - Applying config profile: `standard`
+Jun-21 11:37:10.007 [main] DEBUG nextflow.cli.CmdRun - Applied DSL=1 by probing script field
+Jun-21 11:37:10.021 [main] INFO  nextflow.cli.CmdRun - Launching `main.nf` [loving_poitras] DSL1 - revision: eeee83110b
+Jun-21 11:37:10.031 [main] DEBUG nextflow.plugin.PluginsFacade - Setting up plugin manager > mode=prod; plugins-dir=/Users/timbarry/.nextflow/plugins; core-plugins: nf-amazon@1.7.2,nf-azure@0.13.2,nf-console@1.0.3,nf-ga4gh@1.0.3,nf-google@1.1.4,nf-sqldb@0.4.0,nf-tower@1.4.0
+Jun-21 11:37:10.032 [main] DEBUG nextflow.plugin.PluginsFacade - Plugins default=[]
+Jun-21 11:37:10.041 [main] INFO  org.pf4j.DefaultPluginStatusProvider - Enabled plugins: []
+Jun-21 11:37:10.042 [main] INFO  org.pf4j.DefaultPluginStatusProvider - Disabled plugins: []
+Jun-21 11:37:10.046 [main] INFO  org.pf4j.DefaultPluginManager - PF4J version 3.4.1 in 'deployment' mode
+Jun-21 11:37:10.053 [main] INFO  org.pf4j.AbstractPluginManager - No plugins
+Jun-21 11:37:10.102 [main] DEBUG nextflow.Session - Session uuid: d0635de3-a1ea-455d-b193-290c6ade1a66
+Jun-21 11:37:10.102 [main] DEBUG nextflow.Session - Run name: loving_poitras
+Jun-21 11:37:10.103 [main] DEBUG nextflow.Session - Executor pool size: 8
+Jun-21 11:37:10.123 [main] DEBUG nextflow.cli.CmdRun - 
+  Version: 22.04.3 build 5703
+  Created: 18-05-2022 19:22 UTC (15:22 EDT)
+  System: Mac OS X 10.16
+  Runtime: Groovy 3.0.10 on OpenJDK 64-Bit Server VM 1.8.0_242-b08
+  Encoding: UTF-8 (UTF-8)
+  Process: 54192@huntsman-ve703-06105.apn.wlan.private.upenn.edu [10.103.87.238]
+  CPUs: 8 - Mem: 16 GB (773.6 MB) - Swap: 1 GB (760 MB)
+Jun-21 11:37:10.141 [main] DEBUG nextflow.Session - Work-dir: /Users/timbarry/research_offsite/work [Mac OS X]
+Jun-21 11:37:10.156 [main] DEBUG nextflow.executor.ExecutorFactory - Extension executors providers=[]
+Jun-21 11:37:10.167 [main] DEBUG nextflow.Session - Observer factory: DefaultObserverFactory
+Jun-21 11:37:10.193 [main] DEBUG nextflow.cache.CacheFactory - Using Nextflow cache factory: nextflow.cache.DefaultCacheFactory
+Jun-21 11:37:10.203 [main] DEBUG nextflow.util.CustomThreadPool - Creating default thread pool > poolSize: 9; maxThreads: 1000
+Jun-21 11:37:10.262 [main] DEBUG nextflow.Session - Session start invoked
+Jun-21 11:37:10.351 [main] DEBUG nextflow.script.ScriptRunner - > Launching execution
+Jun-21 11:37:10.359 [main] INFO  nextflow.script.BaseScript - /Users/timbarry/research_offsite/external/gasperini-2019/at-scale/processed/multimodal/multimodal_metadata.rds
+Jun-21 11:37:10.360 [main] INFO  nextflow.script.BaseScript - /Users/timbarry/research_offsite/external/gasperini-2019/at-scale/processed/gene/gasp_scale_gene_expressions.odm
+Jun-21 11:37:10.361 [main] INFO  nextflow.script.BaseScript - true
+Jun-21 11:37:10.361 [main] INFO  nextflow.script.BaseScript - /Users/timbarry/research_offsite/external/gasperini-2019/at-scale/processed/multimodal/pairs.rds
+Jun-21 11:37:10.362 [main] DEBUG nextflow.Session - Workflow process names [dsl1]: 
+Jun-21 11:37:10.362 [main] DEBUG nextflow.script.ScriptRunner - > Await termination 
+Jun-21 11:37:10.362 [main] DEBUG nextflow.Session - Session await
+Jun-21 11:37:10.363 [main] DEBUG nextflow.Session - Session await > all process finished
+Jun-21 11:37:10.363 [main] DEBUG nextflow.Session - Session await > all barriers passed
+Jun-21 11:37:10.372 [main] DEBUG nextflow.trace.WorkflowStatsObserver - Workflow completed > WorkflowStats[succeededCount=0; failedCount=0; ignoredCount=0; cachedCount=0; pendingCount=0; submittedCount=0; runningCount=0; retriesCount=0; abortedCount=0; succeedDuration=0ms; failedDuration=0ms; cachedDuration=0ms;loadCpus=0; loadMemory=0; peakRunning=0; peakCpus=0; peakMemory=0; ]
+Jun-21 11:37:10.499 [main] DEBUG nextflow.cache.CacheDB - Closing CacheDB done
+Jun-21 11:37:10.510 [main] DEBUG nextflow.script.ScriptRunner - > Execution complete -- Goodbye
