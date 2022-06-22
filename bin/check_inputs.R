@@ -101,3 +101,4 @@ gRNA_group_v <- as.character(pairs$gRNA_group)
 write_vector("gene_ids.txt", unique(gene_id_v))
 write_vector("grna_groups.txt", unique(gRNA_group_v))
 write_vector("pairs.txt", paste0(gene_id_v, " ", gRNA_group_v))
+

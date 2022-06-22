@@ -1,46 +1,63 @@
-Jun-22 13:00:13.759 [main] DEBUG nextflow.cli.Launcher - $> nextflow main.nf --multimodal_metadata_fp /Users/timbarry/research_offsite/external/gasperini-2019/at-scale/processed/multimodal/multimodal_metadata.rds --gene_odm_fp /Users/timbarry/research_offsite/external/gasperini-2019/at-scale/processed/gene/gasp_scale_gene_expressions.odm --gRNA_odm_fp /Users/timbarry/research_offsite/external/gasperini-2019/at-scale/processed/gRNA_ungrouped/gasp_scale_gRNA_counts_ungrouped.odm --pair_fp /Users/timbarry/research_offsite/external/gasperini-2019/at-scale/processed/multimodal/pairs.rds
-Jun-22 13:00:13.919 [main] INFO  nextflow.cli.CmdRun - N E X T F L O W  ~  version 22.04.3
-Jun-22 13:00:13.939 [main] DEBUG nextflow.config.ConfigBuilder - Found config home: /Users/timbarry/.nextflow/config
-Jun-22 13:00:13.942 [main] DEBUG nextflow.config.ConfigBuilder - Parsing config file: /Users/timbarry/.nextflow/config
-Jun-22 13:00:13.975 [main] DEBUG nextflow.config.ConfigBuilder - Applying config profile: `standard`
-Jun-22 13:00:14.905 [main] DEBUG nextflow.cli.CmdRun - Applied DSL=2 from script declararion
-Jun-22 13:00:14.925 [main] INFO  nextflow.cli.CmdRun - Launching `main.nf` [cranky_almeida] DSL2 - revision: 421b284849
-Jun-22 13:00:14.939 [main] DEBUG nextflow.plugin.PluginsFacade - Setting up plugin manager > mode=prod; plugins-dir=/Users/timbarry/.nextflow/plugins; core-plugins: nf-amazon@1.7.2,nf-azure@0.13.2,nf-console@1.0.3,nf-ga4gh@1.0.3,nf-google@1.1.4,nf-sqldb@0.4.0,nf-tower@1.4.0
-Jun-22 13:00:14.940 [main] DEBUG nextflow.plugin.PluginsFacade - Plugins default=[]
-Jun-22 13:00:14.952 [main] INFO  org.pf4j.DefaultPluginStatusProvider - Enabled plugins: []
-Jun-22 13:00:14.954 [main] INFO  org.pf4j.DefaultPluginStatusProvider - Disabled plugins: []
-Jun-22 13:00:14.957 [main] INFO  org.pf4j.DefaultPluginManager - PF4J version 3.4.1 in 'deployment' mode
-Jun-22 13:00:14.968 [main] INFO  org.pf4j.AbstractPluginManager - No plugins
-Jun-22 13:00:15.029 [main] DEBUG nextflow.Session - Session uuid: fcbe3332-9dad-4f32-ae99-b095e421c1d4
-Jun-22 13:00:15.030 [main] DEBUG nextflow.Session - Run name: cranky_almeida
-Jun-22 13:00:15.030 [main] DEBUG nextflow.Session - Executor pool size: 8
-Jun-22 13:00:15.062 [main] DEBUG nextflow.cli.CmdRun - 
+Jun-22 16:32:56.783 [main] DEBUG nextflow.cli.Launcher - $> nextflow main.nf --multimodal_metadata_fp /Users/timbarry/research_offsite/external/gasperini-2019/at-scale/processed/multimodal/multimodal_metadata.rds --gene_odm_fp /Users/timbarry/research_offsite/external/gasperini-2019/at-scale/processed/gene/gasp_scale_gene_expressions.odm --gRNA_odm_fp /Users/timbarry/research_offsite/external/gasperini-2019/at-scale/processed/gRNA_ungrouped/gasp_scale_gRNA_counts_ungrouped.odm --pair_fp /Users/timbarry/research_offsite/external/gasperini-2019/at-scale/processed/multimodal/pairs.rds --result_fp /Users/timbarry/research_code/sceptre-pipeline/sceptre_result.rds -resume
+Jun-22 16:32:56.944 [main] INFO  nextflow.cli.CmdRun - N E X T F L O W  ~  version 22.04.3
+Jun-22 16:32:56.965 [main] DEBUG nextflow.config.ConfigBuilder - Found config home: /Users/timbarry/.nextflow/config
+Jun-22 16:32:56.967 [main] DEBUG nextflow.config.ConfigBuilder - Parsing config file: /Users/timbarry/.nextflow/config
+Jun-22 16:32:56.997 [main] DEBUG nextflow.config.ConfigBuilder - Applying config profile: `standard`
+Jun-22 16:32:57.933 [main] DEBUG nextflow.cli.CmdRun - Applied DSL=2 from script declararion
+Jun-22 16:32:57.954 [main] INFO  nextflow.cli.CmdRun - Launching `main.nf` [naughty_gautier] DSL2 - revision: 800fbef4bb
+Jun-22 16:32:57.968 [main] DEBUG nextflow.plugin.PluginsFacade - Setting up plugin manager > mode=prod; plugins-dir=/Users/timbarry/.nextflow/plugins; core-plugins: nf-amazon@1.7.2,nf-azure@0.13.2,nf-console@1.0.3,nf-ga4gh@1.0.3,nf-google@1.1.4,nf-sqldb@0.4.0,nf-tower@1.4.0
+Jun-22 16:32:57.969 [main] DEBUG nextflow.plugin.PluginsFacade - Plugins default=[]
+Jun-22 16:32:57.981 [main] INFO  org.pf4j.DefaultPluginStatusProvider - Enabled plugins: []
+Jun-22 16:32:57.982 [main] INFO  org.pf4j.DefaultPluginStatusProvider - Disabled plugins: []
+Jun-22 16:32:57.986 [main] INFO  org.pf4j.DefaultPluginManager - PF4J version 3.4.1 in 'deployment' mode
+Jun-22 16:32:57.997 [main] INFO  org.pf4j.AbstractPluginManager - No plugins
+Jun-22 16:32:58.056 [main] DEBUG nextflow.Session - Session uuid: d8cfe214-8bfb-4624-a0ea-fce90927ad83
+Jun-22 16:32:58.056 [main] DEBUG nextflow.Session - Run name: naughty_gautier
+Jun-22 16:32:58.057 [main] DEBUG nextflow.Session - Executor pool size: 8
+Jun-22 16:32:58.091 [main] DEBUG nextflow.cli.CmdRun - 
   Version: 22.04.3 build 5703
   Created: 18-05-2022 19:22 UTC (15:22 EDT)
   System: Mac OS X 10.16
   Runtime: Groovy 3.0.10 on OpenJDK 64-Bit Server VM 1.8.0_242-b08
   Encoding: UTF-8 (UTF-8)
-  Process: 82582@huntsman-ve703-06105.apn.wlan.private.upenn.edu [10.103.87.238]
-  CPUs: 8 - Mem: 16 GB (3.1 GB) - Swap: 2 GB (851.2 MB)
-Jun-22 13:00:15.075 [main] DEBUG nextflow.Session - Work-dir: /Users/timbarry/research_offsite/work [Mac OS X]
-Jun-22 13:00:15.092 [main] DEBUG nextflow.executor.ExecutorFactory - Extension executors providers=[]
-Jun-22 13:00:15.105 [main] DEBUG nextflow.Session - Observer factory: DefaultObserverFactory
-Jun-22 13:00:15.140 [main] DEBUG nextflow.cache.CacheFactory - Using Nextflow cache factory: nextflow.cache.DefaultCacheFactory
-Jun-22 13:00:15.153 [main] DEBUG nextflow.util.CustomThreadPool - Creating default thread pool > poolSize: 9; maxThreads: 1000
-Jun-22 13:00:15.233 [main] DEBUG nextflow.Session - Session start invoked
-Jun-22 13:00:15.935 [main] DEBUG nextflow.script.ScriptRunner - > Launching execution
-Jun-22 13:00:15.945 [main] DEBUG nextflow.Session - Session aborted -- Cause: No such property: $PWD for class: Script_2bd276c0
-Jun-22 13:00:15.958 [main] ERROR nextflow.cli.Launcher - @unknown
-groovy.lang.MissingPropertyException: No such property: $PWD for class: Script_2bd276c0
-	at org.codehaus.groovy.runtime.ScriptBytecodeAdapter.unwrap(ScriptBytecodeAdapter.java:65)
-	at org.codehaus.groovy.runtime.callsite.PogoGetPropertySite.getProperty(PogoGetPropertySite.java:51)
-	at org.codehaus.groovy.runtime.callsite.AbstractCallSite.callGroovyObjectGetProperty(AbstractCallSite.java:341)
-	at Script_2bd276c0.runScript(Script_2bd276c0:8)
-	at nextflow.script.BaseScript.runDsl2(BaseScript.groovy:170)
-	at nextflow.script.BaseScript.run(BaseScript.groovy:217)
-	at nextflow.script.ScriptParser.runScript(ScriptParser.groovy:220)
-	at nextflow.script.ScriptRunner.run(ScriptRunner.groovy:212)
-	at nextflow.script.ScriptRunner.execute(ScriptRunner.groovy:120)
-	at nextflow.cli.CmdRun.run(CmdRun.groovy:337)
-	at nextflow.cli.Launcher.run(Launcher.groovy:480)
-	at nextflow.cli.Launcher.main(Launcher.groovy:639)
+  Process: 88025@huntsman-ve703-06105.apn.wlan.private.upenn.edu [10.103.87.238]
+  CPUs: 8 - Mem: 16 GB (2.9 GB) - Swap: 3 GB (1.2 GB)
+Jun-22 16:32:58.121 [main] DEBUG nextflow.Session - Work-dir: /Users/timbarry/research_offsite/work [Mac OS X]
+Jun-22 16:32:58.138 [main] DEBUG nextflow.executor.ExecutorFactory - Extension executors providers=[]
+Jun-22 16:32:58.152 [main] DEBUG nextflow.Session - Observer factory: DefaultObserverFactory
+Jun-22 16:32:58.184 [main] DEBUG nextflow.cache.CacheFactory - Using Nextflow cache factory: nextflow.cache.DefaultCacheFactory
+Jun-22 16:32:58.197 [main] DEBUG nextflow.util.CustomThreadPool - Creating default thread pool > poolSize: 9; maxThreads: 1000
+Jun-22 16:32:58.306 [main] DEBUG nextflow.Session - Session start invoked
+Jun-22 16:32:59.032 [main] DEBUG nextflow.script.ScriptRunner - > Launching execution
+Jun-22 16:32:59.171 [main] DEBUG nextflow.executor.ExecutorFactory - << taskConfig executor: null
+Jun-22 16:32:59.171 [main] DEBUG nextflow.executor.ExecutorFactory - >> processorType: 'local'
+Jun-22 16:32:59.176 [main] DEBUG nextflow.executor.Executor - [warm up] executor > local
+Jun-22 16:32:59.182 [main] DEBUG n.processor.LocalPollingMonitor - Creating local task monitor for executor 'local' > cpus=8; memory=16 GB; capacity=8; pollInterval=100ms; dumpInterval=5m
+Jun-22 16:32:59.344 [main] DEBUG nextflow.executor.ExecutorFactory - << taskConfig executor: null
+Jun-22 16:32:59.344 [main] DEBUG nextflow.executor.ExecutorFactory - >> processorType: 'local'
+Jun-22 16:32:59.350 [main] DEBUG nextflow.executor.ExecutorFactory - << taskConfig executor: null
+Jun-22 16:32:59.350 [main] DEBUG nextflow.executor.ExecutorFactory - >> processorType: 'local'
+Jun-22 16:32:59.379 [main] DEBUG nextflow.executor.ExecutorFactory - << taskConfig executor: null
+Jun-22 16:32:59.379 [main] DEBUG nextflow.executor.ExecutorFactory - >> processorType: 'local'
+Jun-22 16:32:59.395 [main] DEBUG nextflow.executor.ExecutorFactory - << taskConfig executor: null
+Jun-22 16:32:59.396 [main] DEBUG nextflow.executor.ExecutorFactory - >> processorType: 'local'
+Jun-22 16:32:59.402 [main] DEBUG nextflow.Session - Workflow process names [dsl2]: combine_results, perform_pairwise_association_test, perform_gRNA_precomputation, perform_gene_precomputation, check_inputs
+Jun-22 16:32:59.402 [main] DEBUG nextflow.Session - Ignite dataflow network (5)
+Jun-22 16:32:59.402 [main] DEBUG nextflow.processor.TaskProcessor - Starting process > check_inputs
+Jun-22 16:32:59.403 [main] DEBUG nextflow.processor.TaskProcessor - Starting process > perform_gene_precomputation
+Jun-22 16:32:59.403 [main] DEBUG nextflow.processor.TaskProcessor - Starting process > perform_gRNA_precomputation
+Jun-22 16:32:59.403 [main] DEBUG nextflow.processor.TaskProcessor - Starting process > perform_pairwise_association_test
+Jun-22 16:32:59.404 [main] DEBUG nextflow.processor.TaskProcessor - Starting process > combine_results
+Jun-22 16:32:59.404 [main] DEBUG nextflow.script.ScriptRunner - > Await termination 
+Jun-22 16:32:59.404 [main] DEBUG nextflow.Session - Session await
+Jun-22 16:32:59.569 [Actor Thread 5] INFO  nextflow.processor.TaskProcessor - [68/07aacf] Cached process > check_inputs
+Jun-22 16:32:59.605 [Actor Thread 6] INFO  nextflow.processor.TaskProcessor - [dd/3e2d4a] Cached process > perform_gene_precomputation (1)
+Jun-22 16:32:59.605 [Actor Thread 2] INFO  nextflow.processor.TaskProcessor - [93/02e189] Cached process > perform_gRNA_precomputation (1)
+Jun-22 16:32:59.634 [Actor Thread 9] INFO  nextflow.processor.TaskProcessor - [c4/1890e9] Cached process > perform_pairwise_association_test (1)
+Jun-22 16:32:59.634 [Actor Thread 7] INFO  nextflow.processor.TaskProcessor - [79/ec1d4a] Cached process > perform_pairwise_association_test (2)
+Jun-22 16:32:59.644 [Actor Thread 9] INFO  nextflow.processor.TaskProcessor - [1e/fdd240] Cached process > combine_results
+Jun-22 16:32:59.651 [main] DEBUG nextflow.Session - Session await > all process finished
+Jun-22 16:32:59.712 [main] DEBUG nextflow.Session - Session await > all barriers passed
+Jun-22 16:32:59.724 [main] DEBUG nextflow.trace.WorkflowStatsObserver - Workflow completed > WorkflowStats[succeededCount=0; failedCount=0; ignoredCount=0; cachedCount=6; pendingCount=0; submittedCount=0; runningCount=0; retriesCount=0; abortedCount=0; succeedDuration=0ms; failedDuration=0ms; cachedDuration=2m 10s;loadCpus=0; loadMemory=0; peakRunning=0; peakCpus=0; peakMemory=0; ]
+Jun-22 16:32:59.797 [main] DEBUG nextflow.cache.CacheDB - Closing CacheDB done
+Jun-22 16:32:59.820 [main] DEBUG nextflow.script.ScriptRunner - > Execution complete -- Goodbye

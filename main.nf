@@ -4,11 +4,16 @@ nextflow.enable.dsl = 2
 // Define optional parameters
 params.threshold = 3
 params.B = 1000
-params.result_file_name = "sceptre_result.rds"
-params.result_dir = "$PWD"
+params.result_fp = "$PWD/sceptre_result.rds"
 params.gene_pod_size = 3
 params.gRNA_group_pod_size = 3
 params.pair_pod_size = 5
+
+// Obtain the base name of directory of file to write
+File out_f = new File(params.result_fp)
+result_file_name = out_f.getName()
+result_dir = out_f.getAbsoluteFile().getParent()
+
 
 // PROCESS 1: Check inputs; output the list of gene IDs and gRNA groups
 process check_inputs {
@@ -68,7 +73,7 @@ process perform_pairwise_association_test {
   path multimodal_metadata_fp
   path gene_odm_fp
   path gRNA_odm_fp
-  tuple val(gene_id), val(gRNA_id), file('gene_fp'), file('gRNA_fp')
+  tuple val(gene_id), val(gRNA_id), path('gene_fp'), path('gRNA_fp')
 
   output:
   path "raw_result.rds"
@@ -80,16 +85,17 @@ process perform_pairwise_association_test {
 
 // PROCESS 5: Combine results
 process combine_results {
-  publishDir params.result_dir, mode: "copy"
+  publishDir result_dir, mode: "copy"
 
   output:
-  file "$params.result_file_name"
+  path "$result_file_name"
 
   input:
-  file "raw_result"
+  path "raw_result"
+  path pair_fp
 
   """
-  combine_results.R $params.result_file_name raw_result*
+  combine_results.R $result_file_name $pair_fp raw_result*
   """
 }
 
@@ -154,5 +160,6 @@ workflow {
                                     all_pairs_labelled_ordered)
 
   // Step 7: Gather the results
-  combine_results(perform_pairwise_association_test.out.collect())
+  combine_results(perform_pairwise_association_test.out.collect(),
+                  params.pair_fp)
 }
