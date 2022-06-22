@@ -21,13 +21,8 @@ result_fp=$PWD"/sceptre_result.rds"
 ###############
 # OPTIONAL ARGS
 ###############
-# i) threshold
-threshold=3
-# ii) B
-
-# iii) sidedness
-
-# iv) pod side
+formula="~gene_p_mito+gene_batch+log(gene_n_nonzero)+log(gene_n_umis)+log(gRNA_n_nonzero)+log(gRNA_n_umis)"
+# threshold, B, side, gene_pod_size, gRNA_group_pod_size, pair_pod_size
 
 ########################
 # invoke the NF pipeline
@@ -38,4 +33,8 @@ nextflow main.nf \
  --gRNA_odm_fp $gRNA_odm_fp \
  --pair_fp $pair_fp \
  --result_fp $result_fp \
+ --formula $formula \
+ --gene_pod_size 5 \
+ --gRNA_group_pod_size 5 \
+ --pair_pod_size 10 \
  -resume

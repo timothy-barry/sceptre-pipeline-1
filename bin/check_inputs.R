@@ -6,10 +6,12 @@
 
 # get the command line args
 args <- commandArgs(trailingOnly = TRUE)
-multimodal_metadata_fp <- args[1]
-gene_odm_fp <- args[2]
-gRNA_odm_fp <- args[3]
-pair_fp <- args[4]
+multimodal_metadata_fp <- args[1] # multimodal metadata fp
+gene_odm_fp <- args[2] # gene ODM backing file
+gRNA_odm_fp <- args[3] # gRNA ODM backing file
+pair_fp <- args[4] # pairs df
+form <- args[5] # formula string
+threshold <- as.integer(args[6]) # threshold 
 
 # load ondisc
 library(ondisc)
@@ -23,7 +25,6 @@ pairs <- readRDS(pair_fp)
 ########
 # CHECKS
 ########
-
 modality_names <- names(mm_odm@modalities)
 # 1. "gene" must be in modality_names
 if (!("gene" %in% modality_names)) {
@@ -69,7 +70,22 @@ if (!all(pairs_gRNA_groups %in% odm_gRNA_groups)) {
   stop("The gRNA groups in the pairs data frame are not a subset of the gRNA groups in the gRNA ondisc matrix.")
 }
 
-# 8. check for weird numbers in the global cell covariate matrix
+
+###############
+# UPDATE MM ODM
+###############
+# 1. add the user-selected threshold to the misc slot of the gRNA ODM
+mm_odm@modalities$gRNA@misc$threshold <- threshold
+# 2. apply a formula object to the global cell covariates
+if (form != "NA") {
+  form <- paste0(form, "+0")
+  global_cell_covariates <- mm_odm |> get_cell_covariates()
+  global_cell_covariates_new <- model.matrix(object = as.formula(form),
+                                             data = global_cell_covariates) |> as.data.frame()
+  mm_odm@global_cell_covariates <- global_cell_covariates_new
+}
+
+# Check for weird numbers in the global cell covariate matrix
 global_cell_covariates <- mm_odm |> get_cell_covariates()
 if (ncol(global_cell_covariates) == 0) {
   stop("The global cell covariate matrix of the multimodal ondisc matrix should contain at least one column.")
@@ -81,9 +97,9 @@ for (col_name in colnames(global_cell_covariates)) {
   }
 }
 
-################################
-# PRINT GENE IDS and GRNA GROUPS
-################################
+#################################################################
+# OUTPUT GENE IDS, GRNA GROUPS, PAIRS, AND UPDATED MULTIMODAL ODM
+#################################################################
 if (TRUE) {
   set.seed(4)
   pairs <- pairs |> dplyr::filter(gene_id %in% c("ENSG00000135018", "ENSG00000155592", "ENSG00000197937") &
@@ -101,4 +117,4 @@ gRNA_group_v <- as.character(pairs$gRNA_group)
 write_vector("gene_ids.txt", unique(gene_id_v))
 write_vector("grna_groups.txt", unique(gRNA_group_v))
 write_vector("pairs.txt", paste0(gene_id_v, " ", gRNA_group_v))
-
+save_multimodal_odm(multimodal_odm = mm_odm, "mm_odm_new.rds")
