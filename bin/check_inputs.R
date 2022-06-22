@@ -1,5 +1,9 @@
 #!/usr/bin/env Rscript
 
+#######
+# SETUP
+#######
+
 # get the command line args
 args <- commandArgs(trailingOnly = TRUE)
 multimodal_metadata_fp <- args[1]
@@ -11,13 +15,15 @@ pair_fp <- args[4]
 library(ondisc)
 
 # create the multimodal odm
-mm_odm <- read_multimodal_odm(c(gene_odm_fp, gRNA_odm_fp),
-                              multimodal_metadata_fp)
+mm_odm <- read_multimodal_odm(c(gene_odm_fp, gRNA_odm_fp), multimodal_metadata_fp)
 
 # read the pairs
 pairs <- readRDS(pair_fp)
 
-# checks
+########
+# CHECKS
+########
+
 modality_names <- names(mm_odm@modalities)
 # 1. "gene" must be in modality_names
 if (!("gene" %in% modality_names)) {
@@ -55,7 +61,7 @@ pairs_gene_ids <- as.character(pairs$gene_id)
 if (!all(pairs_gene_ids %in% odm_gene_ids)) {
   stop("The gene IDs in the pairs data frame are not a subset of the gene IDs in the gene ondisc matrix.")
 }
- 
+
 # 7. check that the gRNA groups in the pairs data frame are a subset of the gRNA groups in the gRNA ODM
 odm_gRNA_groups <- gRNA_feature_covariates$gRNA_group
 pairs_gRNA_groups <- as.character(pairs$gRNA_group)
@@ -74,3 +80,24 @@ for (col_name in colnames(global_cell_covariates)) {
     stop(paste0("The column `", col_name, "` of the global cell covariate matrix contains entries that are either NA, -Inf, or Inf. Remove these entries (by, for example, removing the corresponding cells from the multimodal ondisc matrix)."))
   }
 }
+
+################################
+# PRINT GENE IDS and GRNA GROUPS
+################################
+if (TRUE) {
+  set.seed(4)
+  pairs <- pairs |> dplyr::filter(gene_id %in% c("ENSG00000135018", "ENSG00000155592", "ENSG00000197937") &
+                                  gRNA_group %in% c("random_9", "scrambled_21", "random_22"))
+}
+
+write_vector <- function(file_name, vector) {
+  file_con <- file(file_name)
+  writeLines(as.character(vector), file_con)
+  close(file_con)
+}
+gene_id_v <- as.character(pairs$gene_id)
+gRNA_group_v <- as.character(pairs$gRNA_group)
+
+write_vector("gene_ids.txt", unique(gene_id_v))
+write_vector("grna_groups.txt", unique(gRNA_group_v))
+write_vector("pairs.txt", paste0(gene_id_v, " ", gRNA_group_v))
