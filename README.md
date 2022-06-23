@@ -34,7 +34,11 @@ interface to `sceptre` in most cases.
 
 # Pipeline arguments
 
-We describe the `sceptre` pipeline arguments here.
+We describe the `sceptre` pipeline arguments here. As an example we use
+data from the
+[paper](https://www.sciencedirect.com/science/article/pii/S009286741831554X)
+“A genome-wide framework for mapping gene regulation via cellular
+genetic screens” by Gasperini et al., 2019.
 
 ## Input files
 
