@@ -154,4 +154,4 @@ The bash script `example_launch.sh` contains an example invocation of the pipeli
 
 # Interpreting the results
 
-The results data frame contains the columns
+The results data frame contains columns `gene_id`, `gRNA_group`, `p_value`, `z_value`, and `log_fold_change`. The results can be analyzed using the tips outlined in Step 7 ("Analyze the Results") of the [in-memory sceptre tutorial](https://katsevich-lab.github.io/sceptre/articles/using_sceptre_v2.html).

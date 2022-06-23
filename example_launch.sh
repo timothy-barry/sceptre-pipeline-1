@@ -35,7 +35,7 @@ n_pairs_to_sample=25
 # invoke the NF pipeline
 ########################
 nextflow pull timothy-barry/sceptre-pipeline
-nextflow run timothy-barry/sceptre-pipeline \
+nextflow run timothy-barry/sceptre-pipeline -r main \
  --multimodal_metadata_fp $multimodal_metadata_fp \
  --gene_odm_fp $gene_odm_fp \
  --gRNA_odm_fp $gRNA_odm_fp \
