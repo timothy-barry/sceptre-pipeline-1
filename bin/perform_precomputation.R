@@ -15,14 +15,12 @@ ids <- args[seq(5, length(args))]
 # load ondisc
 library(ondisc)
 
-# set hyperparams
-B <- 1000
-threshold <- 3
-
-##############
-# PREPARE DATA
-##############
+##############################
+# PREPARE DATA AND HYPERPARAMS
+##############################
 mm_odm <- read_multimodal_odm(c(gene_odm_fp, gRNA_odm_fp), multimodal_metadata_fp)
+threshold <- get_modality(mm_odm, "gRNA")@misc$threshold
+B <- get_modality(mm_odm, "gRNA")@misc$B
 modality_odm <- get_modality(mm_odm, modality_name)
 global_cell_covariates <- get_cell_covariates(mm_odm)
 rm(mm_odm)
@@ -41,9 +39,9 @@ for (id in ids) {
                                                     gRNA_group = id,
                                                     threshold = threshold) |> as.integer()
     resamples <- sceptre:::run_gRNA_precomputation(gRNA_indicators = indicators,
-                                                 covariate_matrix = global_cell_covariates,
-                                                 B = B,
-                                                 seed = 1)
+                                                   covariate_matrix = global_cell_covariates,
+                                                   B = B,
+                                                   seed = 1)
     precomp <- list(resamples = resamples)
   }
   precomp$id <- id

@@ -21,8 +21,12 @@ result_fp=$PWD"/sceptre_result.rds"
 ###############
 # OPTIONAL ARGS
 ###############
+# formula, threshold, B, side, n_pairs_to_sample, gene_pod_size, gRNA_group_pod_size, pair_pod_size
 formula="~gene_p_mito+gene_batch+log(gene_n_nonzero)+log(gene_n_umis)+log(gRNA_n_nonzero)+log(gRNA_n_umis)"
-# threshold, B, side, gene_pod_size, gRNA_group_pod_size, pair_pod_size
+gene_pod_size=5
+gRNA_group_pod_size=5
+pair_pod_size=10
+n_pairs_to_sample=25
 
 ########################
 # invoke the NF pipeline
@@ -34,7 +38,8 @@ nextflow main.nf \
  --pair_fp $pair_fp \
  --result_fp $result_fp \
  --formula $formula \
- --gene_pod_size 5 \
- --gRNA_group_pod_size 5 \
- --pair_pod_size 10 \
+ --gene_pod_size $gene_pod_size \
+ --gRNA_group_pod_size $gRNA_group_pod_size \
+ --pair_pod_size $pair_pod_size \
+ --n_pairs_to_sample $n_pairs_to_sample \
  -resume

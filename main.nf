@@ -5,10 +5,12 @@ nextflow.enable.dsl = 2
 params.formula = "NA"
 params.threshold = 3
 params.B = 1000
-params.result_fp = "$PWD/sceptre_result.rds"
+params.side = "both"
 params.gene_pod_size = 50
 params.gRNA_group_pod_size = 50
 params.pair_pod_size = 100
+params.n_pairs_to_sample = 0
+params.result_fp = "$PWD/sceptre_result.rds"
 
 // Mild command line argument processing
 // 1. Obtain the base name of directory of file to write
@@ -17,11 +19,12 @@ result_file_name = out_f.getName()
 result_dir = out_f.getAbsoluteFile().getParent()
 
 // 2. Replace formula parens with slash parens
-formula=params.formula.replaceAll("\\(", "\\\\(").replaceAll("\\)", "\\\\)")
+formula = params.formula.replaceAll("\\(", "\\\\(").replaceAll("\\)", "\\\\)")
 
 // PROCESS 1: Check inputs; output the list of gene IDs and gRNA groups
 process check_inputs {
-  debug true
+  time "5m"
+  memory "2 GB"
 
   input:
   path multimodal_metadata_fp
@@ -35,17 +38,16 @@ process check_inputs {
   path "pairs.txt", emit: pair_names_ch_raw
   path "mm_odm_new.rds", emit: multimodal_metadata_ch
 
-  // """
-  // check_inputs.R $multimodal_metadata_fp $gene_odm_fp $gRNA_odm_fp $pair_fp $params.formula $params.threshold
-  // """
-
   """
-  echo $multimodal_metadata_fp $gene_odm_fp $gRNA_odm_fp $pair_fp $formula $params.threshold
+  check_inputs.R $multimodal_metadata_fp $gene_odm_fp $gRNA_odm_fp $pair_fp $formula $params.threshold $params.B $params.side $params.n_pairs_to_sample
   """
 }
 
 // PROCESS 2: Perform gene precomputation
 process perform_gene_precomputation {
+  time { 30.s * params.gene_pod_size }
+  memory "2 GB"
+
   input:
   path multimodal_metadata_fp
   path gene_odm_fp
@@ -62,6 +64,9 @@ process perform_gene_precomputation {
 
 // PROCESS 3: Perform gRNA precomputation
 process perform_gRNA_precomputation {
+  time { 30.s * params.gRNA_group_pod_size }
+  memory "2 GB"
+
   input:
   path multimodal_metadata_fp
   path gene_odm_fp
@@ -72,13 +77,14 @@ process perform_gRNA_precomputation {
   path "*.rds"
 
   """
-  perform_precomputation.R "gRNA" $multimodal_metadata_fp $gene_odm_fp $gRNA_odm_fp ${params.B} $gene_ids
+  perform_precomputation.R "gRNA" $multimodal_metadata_fp $gene_odm_fp $gRNA_odm_fp $gene_ids
   """
 }
 
 // PROCESS 4: Perform pairwise association test
 process perform_pairwise_association_test {
-  debug true
+  time { 30.s * params.pair_pod_size }
+  memory "2 GB"
 
   input:
   path multimodal_metadata_fp
@@ -96,6 +102,9 @@ process perform_pairwise_association_test {
 
 // PROCESS 5: Combine results
 process combine_results {
+  time "5m"
+  memory "2 GB"
+
   publishDir result_dir, mode: "copy"
 
   output:
@@ -131,27 +140,28 @@ def my_spread_str(elem_list, j) {
 
 // Define the workflow (DO NOT MODIFY)
 workflow {
-
   // Step 1: Check inputs for correctness; output channels for gene IDs, gRNA groups, and pairs
   check_inputs(params.multimodal_metadata_fp,
                params.gene_odm_fp,
                params.gRNA_odm_fp,
                params.pair_fp)
-  /*
+
   // Step 2: Clean up the gene, gRNA, and pair output channels; collate the former two
   gene_ids_ch = check_inputs.out.gene_ids_names_ch_raw.splitText().map{it.trim()}.collate(params.gene_pod_size).map{it.join(' ')}
   gRNA_groups_ch = check_inputs.out.gRNA_groups_names_ch_raw.splitText().map{it.trim()}.collate(params.gene_pod_size).map{it.join(' ')}
   pair_names_ch = check_inputs.out.pair_names_ch_raw.splitText().map{it.trim()}
+  multimodal_metadata_ch = check_inputs.out.multimodal_metadata_ch
 
   // STEP 3: Perform the precomputation on genes
-  perform_gene_precomputation(params.multimodal_metadata_fp,
+  perform_gene_precomputation(multimodal_metadata_ch,
                               params.gene_odm_fp,
                               params.gRNA_odm_fp,
                               gene_ids_ch)
   gene_precomp_ch_raw = perform_gene_precomputation.out
 
+
   // STEP 4: Perform the precomputation on gRNA groups
-  perform_gRNA_precomputation(params.multimodal_metadata_fp,
+  perform_gRNA_precomputation(multimodal_metadata_ch,
                               params.gene_odm_fp,
                               params.gRNA_odm_fp,
                               gRNA_groups_ch)
@@ -166,7 +176,7 @@ workflow {
   all_pairs_labelled_ordered = all_pairs_labelled_ch.map{[my_spread_str(it, 0), my_spread_str(it, 1), my_spread(it, 2), my_spread(it, 3)]}
 
   // Step 6: Perform the pairwise association test
-  perform_pairwise_association_test(params.multimodal_metadata_fp,
+  perform_pairwise_association_test(multimodal_metadata_ch,
                                     params.gene_odm_fp,
                                     params.gRNA_odm_fp,
                                     all_pairs_labelled_ordered)
@@ -174,5 +184,4 @@ workflow {
   // Step 7: Gather the results
   combine_results(perform_pairwise_association_test.out.collect(),
                   params.pair_fp)
- */
 }

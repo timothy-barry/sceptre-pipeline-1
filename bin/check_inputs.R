@@ -11,7 +11,10 @@ gene_odm_fp <- args[2] # gene ODM backing file
 gRNA_odm_fp <- args[3] # gRNA ODM backing file
 pair_fp <- args[4] # pairs df
 form <- args[5] # formula string
-threshold <- as.integer(args[6]) # threshold 
+threshold <- as.integer(args[6]) # threshold
+B <- as.integer(args[7]) # B
+side <- args[8] # sidedness
+n_pairs_to_sample <- as.integer(args[9]) # n pairs
 
 # load ondisc
 library(ondisc)
@@ -76,6 +79,8 @@ if (!all(pairs_gRNA_groups %in% odm_gRNA_groups)) {
 ###############
 # 1. add the user-selected threshold to the misc slot of the gRNA ODM
 mm_odm@modalities$gRNA@misc$threshold <- threshold
+mm_odm@modalities$gRNA@misc$B <- B
+mm_odm@modalities$gRNA@misc$side <- side
 # 2. apply a formula object to the global cell covariates
 if (form != "NA") {
   form <- paste0(form, "+0")
@@ -97,14 +102,12 @@ for (col_name in colnames(global_cell_covariates)) {
   }
 }
 
+
 #################################################################
 # OUTPUT GENE IDS, GRNA GROUPS, PAIRS, AND UPDATED MULTIMODAL ODM
 #################################################################
-if (TRUE) {
-  set.seed(4)
-  pairs <- pairs |> dplyr::filter(gene_id %in% c("ENSG00000135018", "ENSG00000155592", "ENSG00000197937") &
-                                  gRNA_group %in% c("random_9", "scrambled_21", "random_22"))
-}
+if (!(n_pairs_to_sample == 0)) pairs <- pairs |> dplyr::sample_n(n_pairs_to_sample)
+pairs <- dplyr::arrange(pairs, gene_id, gRNA_group)
 
 write_vector <- function(file_name, vector) {
   file_con <- file(file_name)

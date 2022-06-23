@@ -3,8 +3,6 @@
 #######
 # SETUP
 #######
-side <- "both"
-
 # get the command line args
 args <- commandArgs(trailingOnly = TRUE)
 multimodal_metadata_fp <- args[1]
@@ -25,13 +23,14 @@ n_pairs <- length(gene_ids)
 # library ondisc
 library(ondisc)
 
-##############
-# PREPARE DATA
-##############
-
+##################################
+# PREPARE DATA AND SET HYPERPARAMS
+##################################
 mm_odm <- read_multimodal_odm(c(gene_odm_fp, gRNA_odm_fp), multimodal_metadata_fp)
 gene_odm <- mm_odm |> get_modality("gene")
 gRNA_odm <- mm_odm |> get_modality("gRNA")
+threshold <- get_modality(mm_odm, "gRNA")@misc$threshold
+side <- get_modality(mm_odm, "gRNA")@misc$side
 rm(mm_odm)
 
 ##########################
@@ -48,7 +47,8 @@ for (i in seq(1, n_pairs)) {
   if (i == 1 || gRNA_ids[i] != gRNA_ids[i - 1]) {
     gRNA_precomp <- readRDS(gRNA_precomp_fps[i])
     gRNA_indicators <- load_thresholded_and_grouped_gRNA(covariate_odm = gRNA_odm,
-                                                     gRNA_group = gRNA_precomp$id) |> as.integer()
+                                                         gRNA_group = gRNA_precomp$id,
+                                                         threshold = threshold) |> as.integer()
   }
   # run the dCRT; append gene id and gRNA group to the output
   res <- sceptre:::run_sceptre_using_precomp_fast(expressions = gene_expressions,
