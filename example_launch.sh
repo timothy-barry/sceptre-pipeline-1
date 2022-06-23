@@ -13,6 +13,11 @@ gRNA_odm_fp=$LOCAL_GASPERINI_2019_DATA_DIR"at-scale/processed/gRNA_ungrouped/gas
 # iv) gene-gRNA group pairs
 pair_fp=$LOCAL_GASPERINI_2019_DATA_DIR"at-scale/processed/multimodal/pairs.rds"
 
+#echo $multimodal_metadata_fp
+#echo $gene_odm_fp
+#echo $gRNA_odm_fp
+#echo $pair_fp
+
 ##############
 # OUTPUT FILE:
 ##############
