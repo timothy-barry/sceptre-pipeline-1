@@ -23,6 +23,7 @@ interface to `sceptre` in most cases.
     # in R
     install.packages("devtools")
     devtools::install_github("katsevich-lab/sceptre")
+    setRepositories(ind = 1:4)
     devtools::install_github("timothy-barry/ondisc")
 
 -   Install the the `sceptre` nextflow pipeline.
