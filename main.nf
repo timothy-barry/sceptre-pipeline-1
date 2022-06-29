@@ -34,7 +34,7 @@ process check_inputs {
 
   output:
   path "gene_ids.txt", emit: gene_ids_names_ch_raw
-  path "gRNA_groups.txt", emit: gRNA_groups_names_ch_raw
+  path "grna_groups.txt", emit: gRNA_groups_names_ch_raw
   path "pairs.txt", emit: pair_names_ch_raw
   path "mm_odm_new.rds", emit: multimodal_metadata_ch
 
