@@ -90,7 +90,6 @@ mm_odm@modalities$grna@misc$side <- side
 # 2. apply a formula object to the global cell covariates
 if (form != "NA") {
   if (grepl("offset", form)) stop("Offsets are not currently supported in formulas.")
-  form <- paste0(form, "+0")
   global_cell_covariates <- mm_odm |> get_cell_covariates()
   global_cell_covariates_new <- model.matrix(object = as.formula(form), data = global_cell_covariates) |> as.data.frame()
   mm_odm@global_cell_covariates <- global_cell_covariates_new
@@ -114,7 +113,7 @@ for (col_name in colnames(global_cell_covariates)) {
 #################################################################
 set.seed(4)
 if (!(n_pairs_to_sample == 0)) pairs <- pairs |> dplyr::sample_n(n_pairs_to_sample)
-pairs <- dplyr::arrange(pairs, gene_id, grna_group)
+pairs <- dplyr::arrange(pairs, grna_group, gene_id)
 
 # obtain unique genes and grna groups
 unique_genes <- data.frame(gene_id = unique(as.character(pairs$gene_id)))

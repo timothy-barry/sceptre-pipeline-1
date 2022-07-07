@@ -42,13 +42,13 @@ process check_inputs {
   //path "pairs.txt", emit: pair_names_ch_raw
   //path "mm_odm_new.rds", emit: multimodal_metadata_ch
 
-  """
-  check_inputs.R $multimodal_metadata_fp $gene_odm_fp $grna_odm_fp $pair_fp $formula $params.threshold $params.B $params.side $params.n_pairs_to_sample $params.gene_modality_name $params.grna_modality_name
-  """
+  //"""
+  //check_inputs.R $multimodal_metadata_fp $gene_odm_fp $grna_odm_fp $pair_fp $formula $params.threshold $params.B $params.side $params.n_pairs_to_sample $params.gene_modality_name $params.grna_modality_name
+  //"""
 
-  //"""
-  //echo $multimodal_metadata_fp $gene_odm_fp $grna_odm_fp $pair_fp $formula $params.threshold $params.B $params.side $params.n_pairs_to_sample $params.gene_modality_name $params.grna_modality_name
-  //"""
+  """
+  echo $multimodal_metadata_fp $gene_odm_fp $grna_odm_fp $pair_fp $formula $params.threshold $params.B $params.side $params.n_pairs_to_sample $params.gene_modality_name $params.grna_modality_name
+  """
 }
 
 // PROCESS 2: Perform gene precomputation

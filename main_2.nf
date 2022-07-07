@@ -27,6 +27,7 @@ formula = params.formula.replaceAll("\\(", "\\\\(").replaceAll("\\)", "\\\\)")
 process check_inputs {
   time "5m"
   memory "4 GB"
+  debug true
 
   input:
   path "multimodal_metadata_fp"
@@ -60,15 +61,11 @@ process perform_gene_precomputation {
   path "gene_to_pod_id_map"
   val gene_pod_id
 
-  //output:
-  //path "*.rds"
-
-  //"""
-  //perform_precomputation.R "gene" $multimodal_metadata_fp $gene_odm_fp $grna_odm_fp $gene_ids
-  //"""
+  output:
+  path "precomp_sub_matrix.rds"
 
   """
-  echo "gene" $multimodal_metadata_fp $gene_odm_fp $gene_to_pod_id_map $gene_pod_id
+  perform_precomputation.R "gene" $multimodal_metadata_fp $gene_odm_fp $gene_to_pod_id_map $gene_pod_id $params.threshold
   """
 }
 
@@ -152,7 +149,6 @@ workflow {
                               params.gene_odm_fp,
                               gene_to_pod_id_map,
                               gene_pods)
-
   /*
   gene_precomp_ch_raw = perform_gene_precomputation.out
 
