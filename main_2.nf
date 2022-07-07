@@ -25,48 +25,50 @@ formula = params.formula.replaceAll("\\(", "\\\\(").replaceAll("\\)", "\\\\)")
 
 // PROCESS 1: Check inputs; output the list of gene IDs and grna groups
 process check_inputs {
-  debug true
-
   time "5m"
-  memory "2 GB"
+  memory "4 GB"
 
   input:
-  path multimodal_metadata_fp
+  path "multimodal_metadata_fp"
   path "gene_odm_fp"
   path "grna_odm_fp"
-  path pair_fp
+  path "pair_fp"
 
-  //output:
-  //path "gene_ids.txt", emit: gene_ids_names_ch_raw
-  //path "grna_groups.txt", emit: grna_groups_names_ch_raw
-  //path "pairs.txt", emit: pair_names_ch_raw
-  //path "mm_odm_new.rds", emit: multimodal_metadata_ch
+  output:
+  path "gene_to_pod_id_map.rds", emit: gene_to_pod_id_map_ch
+  path "grna_group_to_pod_id_map.rds", emit: grna_group_to_pod_id_map_ch
+  path "pairs_to_pod_id_map.rds", emit: pairs_to_pod_id_map_ch
+  path "gene_pods.txt", emit: gene_pods_ch
+  path "grna_group_pods.txt", emit: grna_group_pods_ch
+  path "pair_pods.txt", emit: pair_pods_ch
+  path "mm_odm_new.rds", emit: multimodal_metadata_ch
 
   """
-  check_inputs.R $multimodal_metadata_fp $gene_odm_fp $grna_odm_fp $pair_fp $formula $params.threshold $params.B $params.side $params.n_pairs_to_sample $params.gene_modality_name $params.grna_modality_name
+  check_inputs.R $multimodal_metadata_fp $gene_odm_fp $grna_odm_fp $pair_fp $formula $params.threshold $params.B $params.side $params.n_pairs_to_sample $params.gene_modality_name $params.grna_modality_name $params.gene_pod_size $params.grna_group_pod_size $params.pair_pod_size
   """
-
-  //"""
-  //echo $multimodal_metadata_fp $gene_odm_fp $grna_odm_fp $pair_fp $formula $params.threshold $params.B $params.side $params.n_pairs_to_sample $params.gene_modality_name $params.grna_modality_name
-  //"""
 }
 
 // PROCESS 2: Perform gene precomputation
 process perform_gene_precomputation {
   time { 30.s * params.gene_pod_size }
   memory "2 GB"
+  debug true
 
   input:
-  path multimodal_metadata_fp
-  path gene_odm_fp
-  path grna_odm_fp
-  val gene_ids
+  path "multimodal_metadata_fp"
+  path "gene_odm_fp"
+  path "gene_to_pod_id_map"
+  val gene_pod_id
 
-  output:
-  path "*.rds"
+  //output:
+  //path "*.rds"
+
+  //"""
+  //perform_precomputation.R "gene" $multimodal_metadata_fp $gene_odm_fp $grna_odm_fp $gene_ids
+  //"""
 
   """
-  perform_precomputation.R "gene" $multimodal_metadata_fp $gene_odm_fp $grna_odm_fp $gene_ids
+  echo "gene" $multimodal_metadata_fp $gene_odm_fp $gene_to_pod_id_map $gene_pod_id
   """
 }
 
@@ -127,24 +129,6 @@ process combine_results {
   """
 }
 
-// Define useful Groovy functions
-def my_spread(elem_list, j) {
-  out = []
-  for (elem in elem_list) {
-    out.add(elem[j])
-  }
-  return out
-}
-
-def my_spread_str(elem_list, j) {
-  l_size = elem_list.size();
-  out = ""
-  for (i = 0; i < l_size; i ++) {
-    elem = elem_list[i]
-    out += (elem[j] + (i == l_size - 1 ? "" : " "))
-  }
-  return out
-}
 
 // Define the workflow (DO NOT MODIFY)
 workflow {
@@ -153,20 +137,24 @@ workflow {
                params.gene_odm_fp,
                params.grna_odm_fp,
                params.pair_fp)
-  /*
-  // Step 2: Clean up the gene, grna, and pair output channels; collate the former two
-  gene_ids_ch = check_inputs.out.gene_ids_names_ch_raw.splitText().map{it.trim()}.collate(params.gene_pod_size).map{it.join(' ')}
-  grna_groups_ch = check_inputs.out.grna_groups_names_ch_raw.splitText().map{it.trim()}.collate(params.gene_pod_size).map{it.join(' ')}
-  pair_names_ch = check_inputs.out.pair_names_ch_raw.splitText().map{it.trim()}
+
+  // Step 2: Clean up the output channels of the above process
+  gene_pods = check_inputs.out.gene_pods_ch.splitText().map{it.trim()}
+  grna_groups_pods = check_inputs.out.grna_group_pods_ch.splitText().map{it.trim()}
+  pair_pods = check_inputs.out.pair_pods_ch.splitText().map{it.trim()}
+  gene_to_pod_id_map = check_inputs.out.gene_to_pod_id_map_ch
+  grna_group_to_pod_id_map = check_inputs.out.grna_group_to_pod_id_map_ch
+  pairs_to_pod_id_map_ch = check_inputs.out.pairs_to_pod_id_map_ch
   multimodal_metadata_ch = check_inputs.out.multimodal_metadata_ch
 
   // STEP 3: Perform the precomputation on genes
   perform_gene_precomputation(multimodal_metadata_ch,
                               params.gene_odm_fp,
-                              params.grna_odm_fp,
-                              gene_ids_ch)
-  gene_precomp_ch_raw = perform_gene_precomputation.out
+                              gene_to_pod_id_map,
+                              gene_pods)
 
+  /*
+  gene_precomp_ch_raw = perform_gene_precomputation.out
 
   // STEP 4: Perform the precomputation on grna groups
   perform_grna_precomputation(multimodal_metadata_ch,
