@@ -51,6 +51,8 @@ process check_inputs {
 
 // PROCESS 2: Perform gene precomputation
 process perform_gene_precomputation {
+  debug true
+
   time { 30.s * params.gene_pod_size }
   memory "2 GB"
   debug true
@@ -69,26 +71,51 @@ process perform_gene_precomputation {
   """
 }
 
+
 // PROCESS 3: Perform grna precomputation
 process perform_grna_precomputation {
-  time { 30.s * params.grna_group_pod_size }
+  debug true
+
+  time { 30.s * params.gene_pod_size }
   memory "2 GB"
+  debug true
 
   input:
-  path multimodal_metadata_fp
-  path gene_odm_fp
-  path grna_odm_fp
-  val gene_ids
+  path "multimodal_metadata_fp"
+  path "grna_odm_fp"
+  path "grna_group_to_pod_id_map"
+  val grna_group_pod_id
 
-  output:
-  path "*.rds"
+  //output:
+  //path "precomp_sub_matrix.rds"
+
+  //"""
+  //perform_precomputation.R "grna_group" $multimodal_metadata_fp $grna_odm_fp $grna_group_to_pod_id_map $grna_group_pod_id $params.threshold
+  //"""
 
   """
-  perform_precomputation.R "grna" $multimodal_metadata_fp $gene_odm_fp $grna_odm_fp $gene_ids
+  echo "grna" $multimodal_metadata_fp $grna_odm_fp $grna_group_to_pod_id_map $grna_group_pod_id $params.threshold
   """
 }
 
-// PROCESS 4: Perform pairwise association test
+
+// PROCESS 4: Join precomputation matrices
+process join_precomputations {
+  debug true
+
+  input:
+  path "gene_precomp_submatrix"
+
+  output:
+  path "precomputation_matrix.fst"
+
+  """
+  join_precomputations.R gene_precomp_submatrix*
+  """
+}
+
+
+// PROCESS 5: Perform pairwise association test
 process perform_pairwise_association_test {
   time { 30.s * params.pair_pod_size }
   memory "2 GB"
@@ -107,7 +134,7 @@ process perform_pairwise_association_test {
   """
 }
 
-// PROCESS 5: Combine results
+// PROCESS 6: Combine results
 process combine_results {
   time "5m"
   memory "2 GB"
@@ -135,7 +162,7 @@ workflow {
                params.grna_odm_fp,
                params.pair_fp)
 
-  // Step 2: Clean up the output channels of the above process
+  // Step 2: Clean up the output channels of the first process
   gene_pods = check_inputs.out.gene_pods_ch.splitText().map{it.trim()}
   grna_groups_pods = check_inputs.out.grna_group_pods_ch.splitText().map{it.trim()}
   pair_pods = check_inputs.out.pair_pods_ch.splitText().map{it.trim()}
@@ -144,20 +171,26 @@ workflow {
   pairs_to_pod_id_map_ch = check_inputs.out.pairs_to_pod_id_map_ch
   multimodal_metadata_ch = check_inputs.out.multimodal_metadata_ch
 
-  // STEP 3: Perform the precomputation on genes
+  // Step 3: Perform the precomputation on genes
   perform_gene_precomputation(multimodal_metadata_ch,
                               params.gene_odm_fp,
                               gene_to_pod_id_map,
                               gene_pods)
-  /*
   gene_precomp_ch_raw = perform_gene_precomputation.out
 
-  // STEP 4: Perform the precomputation on grna groups
-  perform_grna_precomputation(multimodal_metadata_ch,
-                              params.gene_odm_fp,
-                              params.grna_odm_fp,
-                              grna_groups_ch)
-  grna_precomp_ch_raw = perform_grna_precomputation.out
+
+  // Step 4: Perform the precomputation on grna groups
+  perform_grna_precomputation(
+    multimodal_metadata_ch,
+    params.grna_odm_fp,
+    grna_group_to_pod_id_map,
+    grna_groups_pods)
+
+  /*
+  // Step 5: Combine the gene and grna group precomputations into a single .fst file
+  join_precomputations(gene_precomp_ch_raw.collect())
+  gene_precomp_matrix = join_precomputations.out
+
 
   // Step 5: Add the gene and grna precomputation locations to the gene-grna pairs
   gene_precomp_ch = gene_precomp_ch_raw.flatten().map{file -> tuple(file.baseName, file)}

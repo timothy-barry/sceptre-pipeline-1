@@ -21,7 +21,7 @@ library(ondisc)
 ##############################
 ids <- readRDS(pod_id_map) |>
   dplyr::filter(pod_id == !!pod_id) |>
-  dplyr::pull(gene_id)
+  dplyr::pull(id)
 mm_odm <- read_multimodal_odm(gene_odm_fp, multimodal_metadata_fp)
 modality_odm <- get_modality(mm_odm, modality_name)
 global_cell_covariates <- get_cell_covariates(mm_odm)
@@ -30,19 +30,26 @@ rm(mm_odm)
 ####################################
 # ITERATE AND PERFORM PRECOMPUTATION
 ####################################
-if (modality_name == "gene") { # gene modality
-  precomp_sub_matrix <- sapply(X = ids, FUN = function(id) {
+precomp_sub_matrix <- sapply(X = ids, FUN = function(id) {
+  if (modality_name == "gene") {
     print(paste0("Regressing gene ", id, " onto covariates."))
     # load expression data
     expressions <- as.numeric(modality_odm[[id,]])
-    # regress expressions onto tehcnical factors
-    precomp <- sceptre:::run_gene_precomputation_v2(expressions = expressions, covariate_matrix = global_cell_covariates)
-  })
-} else if (modality_name == "grna") { # grna modality
+    # regress expressions onto technical factors
+    precomp <- sceptre:::run_gene_precomputation_v2(expressions = expressions,
+                                                    covariate_matrix = global_cell_covariates)
+  } else if (modality_name == "grna") {
     print(paste0("Regressing gRNA group ", id, " onto covariates."))
-  
-} else {
-  stop("Modality name not recognized.")
-}
+    # load data
+    indicators <- ondisc::load_thresholded_and_grouped_grna(covariate_odm = modality_odm,
+                                                            grna_group = id,
+                                                            threshold = threshold) |> as.integer()
+    # fit model
+    precomp <- sceptre:::run_grna_precomputation_v2(indicators = indicators,
+                                                    covariate_matrix = global_cell_covariates)
+  } else {
+    stop("Modality name not recognized.")
+  }
+}) |> t() |> data.table::as.data.table() |> dplyr::mutate(id = ids)
 
 saveRDS(precomp_sub_matrix, "precomp_sub_matrix.rds")

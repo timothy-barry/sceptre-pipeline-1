@@ -116,8 +116,8 @@ if (!(n_pairs_to_sample == 0)) pairs <- pairs |> dplyr::sample_n(n_pairs_to_samp
 pairs <- dplyr::arrange(pairs, grna_group, gene_id)
 
 # obtain unique genes and grna groups
-unique_genes <- data.frame(gene_id = unique(as.character(pairs$gene_id)))
-unique_grna_groups <- data.frame(grna_group = unique(as.character(pairs$grna_group)))
+unique_genes <- data.frame(id = unique(as.character(pairs$gene_id)))
+unique_grna_groups <- data.frame(id = unique(as.character(pairs$grna_group)))
 
 # map the unique genes, unique grna groups, and gene-grna group pairs to their pod id
 unique_genes$pod_id <- as.integer(cut(seq(1, nrow(unique_genes)), gene_pod_size))
