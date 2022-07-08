@@ -139,20 +139,26 @@ process perform_pairwise_association_test {
 
 // PROCESS 7: Combine results
 process combine_results {
+  debug true
+
   time "5m"
   memory "2 GB"
 
   publishDir result_dir, mode: "copy"
 
-  output:
-  path "$result_file_name"
+  // output:
+  // path "$result_file_name"
 
   input:
   path "raw_result"
   path pair_fp
 
+  //"""
+  //combine_results.R $result_file_name $pair_fp raw_result*
+  //"""
+
   """
-  combine_results.R $result_file_name $pair_fp raw_result*
+  echo $result_file_name $pair_fp raw_result*
   """
 }
 
@@ -206,7 +212,6 @@ workflow {
     pair_pods)
 
   // Step 7: Gather the results
-  //combine_results(perform_pairwise_association_test.out.collect(),
-  //                params.pair_fp)
-
+  combine_results(perform_pairwise_association_test.out.collect(),
+                  params.pair_fp)
 }

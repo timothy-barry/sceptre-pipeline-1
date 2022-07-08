@@ -72,9 +72,10 @@ for (i in seq(1, n_pairs)) {
                                                   gene_precomp_size = gene_theta,
                                                   gene_precomp_offsets = gene_fitted_linear_components,
                                                   full_output = FALSE) |>
-    dplyr::mutate(gene_id = gene_id, grna_group = grna_group)
+    dplyr::mutate(gene_id = gene_id, grna_group = grna_group_id)
   # add to output list
-  out <- data.table::setDT(out)
+  out <- data.table::setDT(out) |>
+    dplyr::mutate(gene_id = factor(gene_id), grna_group = factor(grna_group))
   out_l[[i]] <- out
 }
 
