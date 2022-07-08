@@ -32,14 +32,14 @@ rm(mm_odm)
 ####################################
 precomp_sub_matrix <- sapply(X = ids, FUN = function(id) {
   if (modality_name == "gene") {
-    print(paste0("Regressing gene ", id, " onto covariates."))
+    # print(paste0("Regressing gene ", id, " onto covariates."))
     # load expression data
     expressions <- as.numeric(modality_odm[[id,]])
     # regress expressions onto technical factors
     precomp <- sceptre:::run_gene_precomputation_v2(expressions = expressions,
                                                     covariate_matrix = global_cell_covariates)
   } else if (modality_name == "grna") {
-    print(paste0("Regressing gRNA group ", id, " onto covariates."))
+    # print(paste0("Regressing gRNA group ", id, " onto covariates."))
     # load data
     indicators <- ondisc::load_thresholded_and_grouped_grna(covariate_odm = modality_odm,
                                                             grna_group = id,

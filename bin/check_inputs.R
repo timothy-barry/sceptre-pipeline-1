@@ -141,7 +141,7 @@ write_vector <- function(file_name, vector) {
 # (vii) the new multimodal matrix
 saveRDS(unique_genes, "gene_to_pod_id_map.rds")
 saveRDS(unique_grna_groups, "grna_group_to_pod_id_map.rds")
-saveRDS(pairs, "pairs_to_pod_id_map.rds")
+saveRDS(pairs, "pair_to_pod_id_map.rds")
 write_vector("gene_pods.txt", unique(unique_genes$pod_id))
 write_vector("grna_group_pods.txt", unique(unique_grna_groups$pod_id))
 write_vector("pair_pods.txt", unique(pairs$pod_id))

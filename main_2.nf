@@ -15,12 +15,12 @@ params.gene_modality_name = "gene"
 params.grna_modality_name = "grna"
 
 // Mild command line argument processing
-// 1. Obtain the base name of directory of file to write
+// i. Obtain the base name of directory of file to write
 File out_f = new File(params.result_fp)
 result_file_name = out_f.getName()
 result_dir = out_f.getAbsoluteFile().getParent()
 
-// 2. Replace formula parens with slash parens
+// ii. Replace formula parens with slash parens
 formula = params.formula.replaceAll("\\(", "\\\\(").replaceAll("\\)", "\\\\)")
 
 // PROCESS 1: Check inputs; output the list of gene IDs and grna groups
@@ -38,7 +38,7 @@ process check_inputs {
   output:
   path "gene_to_pod_id_map.rds", emit: gene_to_pod_id_map_ch
   path "grna_group_to_pod_id_map.rds", emit: grna_group_to_pod_id_map_ch
-  path "pairs_to_pod_id_map.rds", emit: pairs_to_pod_id_map_ch
+  path "pair_to_pod_id_map.rds", emit: pair_to_pod_id_map_ch
   path "gene_pods.txt", emit: gene_pods_ch
   path "grna_group_pods.txt", emit: grna_group_pods_ch
   path "pair_pods.txt", emit: pair_pods_ch
@@ -51,11 +51,8 @@ process check_inputs {
 
 // PROCESS 2: Perform gene precomputation
 process perform_gene_precomputation {
-  debug true
-
   time { 30.s * params.gene_pod_size }
   memory "2 GB"
-  debug true
 
   input:
   path "multimodal_metadata_fp"
@@ -71,14 +68,10 @@ process perform_gene_precomputation {
   """
 }
 
-
 // PROCESS 3: Perform grna precomputation
 process perform_grna_precomputation {
-  debug true
-
   time { 30.s * params.gene_pod_size }
   memory "2 GB"
-  debug true
 
   input:
   path "multimodal_metadata_fp"
@@ -86,55 +79,65 @@ process perform_grna_precomputation {
   path "grna_group_to_pod_id_map"
   val grna_group_pod_id
 
-  //output:
-  //path "precomp_sub_matrix.rds"
-
-  //"""
-  //perform_precomputation.R "grna_group" $multimodal_metadata_fp $grna_odm_fp $grna_group_to_pod_id_map $grna_group_pod_id $params.threshold
-  //"""
+  output:
+  path "precomp_sub_matrix.rds"
 
   """
-  echo "grna" $multimodal_metadata_fp $grna_odm_fp $grna_group_to_pod_id_map $grna_group_pod_id $params.threshold
+  perform_precomputation.R "grna" $multimodal_metadata_fp $grna_odm_fp $grna_group_to_pod_id_map $grna_group_pod_id $params.threshold
   """
 }
 
-
-// PROCESS 4: Join precomputation matrices
-process join_precomputations {
-  debug true
-
+// PROCESS 4: Join gene precomputation matrices
+process join_gene_precomputations {
   input:
-  path "gene_precomp_submatrix"
+  path "precomp_submatrix"
 
   output:
   path "precomputation_matrix.fst"
 
   """
-  join_precomputations.R gene_precomp_submatrix*
+  join_precomputations.R precomp_submatrix*
   """
 }
 
+// PROCESS 5: Join grna group precomputation matrices
+process join_grna_precomputations {
+  input:
+  path "precomp_submatrix"
 
-// PROCESS 5: Perform pairwise association test
+  output:
+  path "precomputation_matrix.fst"
+
+  """
+  join_precomputations.R precomp_submatrix*
+  """
+}
+
+// PROCESS 6: Perform pairwise association test
 process perform_pairwise_association_test {
+  debug true
+
   time { 30.s * params.pair_pod_size }
   memory "2 GB"
 
   input:
-  path multimodal_metadata_fp
-  path gene_odm_fp
-  path grna_odm_fp
-  tuple val(gene_id), val(grna_id), path('gene_fp'), path('grna_fp')
+  path "multimodal_metadata_fp"
+  path "gene_odm_fp"
+  path "grna_odm_fp"
+  path "gene_precomp_matrix_fp"
+  path "grna_precomp_matrix_fp"
+  path "pair_to_pod_id_map"
+  val pair_pod_id
 
   output:
   path "raw_result.rds"
 
   """
-  run_association_test.R $multimodal_metadata_fp $gene_odm_fp $grna_odm_fp $gene_id $grna_id gene_fp* grna_fp*
+  run_association_test.R $multimodal_metadata_fp $gene_odm_fp $grna_odm_fp $gene_precomp_matrix_fp $grna_precomp_matrix_fp $pair_to_pod_id_map $pair_pod_id $params.threshold $params.B $params.side
   """
 }
 
-// PROCESS 6: Combine results
+// PROCESS 7: Combine results
 process combine_results {
   time "5m"
   memory "2 GB"
@@ -168,7 +171,7 @@ workflow {
   pair_pods = check_inputs.out.pair_pods_ch.splitText().map{it.trim()}
   gene_to_pod_id_map = check_inputs.out.gene_to_pod_id_map_ch
   grna_group_to_pod_id_map = check_inputs.out.grna_group_to_pod_id_map_ch
-  pairs_to_pod_id_map_ch = check_inputs.out.pairs_to_pod_id_map_ch
+  pair_to_pod_id_map_ch = check_inputs.out.pair_to_pod_id_map_ch
   multimodal_metadata_ch = check_inputs.out.multimodal_metadata_ch
 
   // Step 3: Perform the precomputation on genes
@@ -178,36 +181,32 @@ workflow {
                               gene_pods)
   gene_precomp_ch_raw = perform_gene_precomputation.out
 
-
   // Step 4: Perform the precomputation on grna groups
   perform_grna_precomputation(
     multimodal_metadata_ch,
     params.grna_odm_fp,
     grna_group_to_pod_id_map,
     grna_groups_pods)
+  grna_precomp_ch_raw = perform_grna_precomputation.out
 
-  /*
   // Step 5: Combine the gene and grna group precomputations into a single .fst file
-  join_precomputations(gene_precomp_ch_raw.collect())
-  gene_precomp_matrix = join_precomputations.out
+  join_gene_precomputations(gene_precomp_ch_raw.collect())
+  gene_precomp_matrix = join_gene_precomputations.out
+  join_grna_precomputations(grna_precomp_ch_raw.collect())
+  grna_precomp_matrix = join_grna_precomputations.out
 
-
-  // Step 5: Add the gene and grna precomputation locations to the gene-grna pairs
-  gene_precomp_ch = gene_precomp_ch_raw.flatten().map{file -> tuple(file.baseName, file)}
-  grna_precomp_ch = grna_precomp_ch_raw.flatten().map{file -> tuple(file.baseName, file)}
-  pair_ch = pair_names_ch.map{split = it.split(" "); [split[0], split[1]]}
-  all_pair_genes_labelled_ch = gene_precomp_ch.cross(pair_ch).map{[it[1][1], it[1][0], it[0][1]]}
-  all_pairs_labelled_ch = grna_precomp_ch.cross(all_pair_genes_labelled_ch).map{[it[1][1], it[1][0], it[1][2], it[0][1]]}.collate(params.pair_pod_size)
-  all_pairs_labelled_ordered = all_pairs_labelled_ch.map{[my_spread_str(it, 0), my_spread_str(it, 1), my_spread(it, 2), my_spread(it, 3)]}
-
-  // Step 6: Perform the pairwise association test
-  perform_pairwise_association_test(multimodal_metadata_ch,
-                                    params.gene_odm_fp,
-                                    params.grna_odm_fp,
-                                    all_pairs_labelled_ordered)
+  // Step 6: Iterate over the pair pods, performing the pairwise association tests
+  perform_pairwise_association_test(
+    multimodal_metadata_ch,
+    params.gene_odm_fp,
+    params.grna_odm_fp,
+    gene_precomp_matrix,
+    grna_precomp_matrix,
+    pair_to_pod_id_map_ch,
+    pair_pods)
 
   // Step 7: Gather the results
-  combine_results(perform_pairwise_association_test.out.collect(),
-                  params.pair_fp)
-  */
+  //combine_results(perform_pairwise_association_test.out.collect(),
+  //                params.pair_fp)
+
 }
