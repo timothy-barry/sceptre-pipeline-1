@@ -37,7 +37,7 @@ n_pairs_to_sample=25
 ########################
 # nextflow pull timothy-barry/sceptre-pipeline
 # nextflow run timothy-barry/sceptre-pipeline -r main \
-nextflow run main_2.nf \
+nextflow run main.nf \
  --multimodal_metadata_fp $multimodal_metadata_fp \
  --gene_odm_fp $gene_odm_fp \
  --grna_odm_fp $grna_odm_fp \

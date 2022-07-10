@@ -106,7 +106,7 @@ for (col_name in colnames(global_cell_covariates)) {
     stop(paste0("The column `", col_name, "` of the global cell covariate matrix contains entries that are either NA, -Inf, or Inf. Remove these entries (by, for example, removing the corresponding cells from the multimodal ondisc matrix)."))
   }
 }
-
+mm_odm <- ondisc:::thin_multimodal_odm(mm_odm, "grna", "gene")
 
 #################################################################
 # OUTPUT GENE IDS, GRNA GROUPS, PAIRS, AND UPDATED MULTIMODAL ODM

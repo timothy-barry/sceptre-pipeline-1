@@ -13,14 +13,12 @@ params.n_pairs_to_sample = 0
 params.result_fp = "$PWD/sceptre_result.rds"
 params.gene_modality_name = "gene"
 params.grna_modality_name = "grna"
+params.inference_method = "crt" // one of `crt` and `gcm`
 
 // Mild command line argument processing
-// i. Obtain the base name of directory of file to write
 File out_f = new File(params.result_fp)
 result_file_name = out_f.getName()
 result_dir = out_f.getAbsoluteFile().getParent()
-
-// ii. Replace formula parens with slash parens
 formula = params.formula.replaceAll("\\(", "\\\\(").replaceAll("\\)", "\\\\)")
 
 // PROCESS 1: Check inputs; output the list of gene IDs and grna groups
@@ -87,36 +85,9 @@ process perform_grna_precomputation {
   """
 }
 
-// PROCESS 4: Join gene precomputation matrices
-process join_gene_precomputations {
-  input:
-  path "precomp_submatrix"
-
-  output:
-  path "precomputation_matrix.fst"
-
-  """
-  join_precomputations.R precomp_submatrix*
-  """
-}
-
-// PROCESS 5: Join grna group precomputation matrices
-process join_grna_precomputations {
-  input:
-  path "precomp_submatrix"
-
-  output:
-  path "precomputation_matrix.fst"
-
-  """
-  join_precomputations.R precomp_submatrix*
-  """
-}
 
 // PROCESS 6: Perform pairwise association test
 process perform_pairwise_association_test {
-  debug true
-
   time { 30.s * params.pair_pod_size }
   memory "2 GB"
 
@@ -146,24 +117,23 @@ process combine_results {
 
   publishDir result_dir, mode: "copy"
 
-  // output:
-  // path "$result_file_name"
+  output:
+  path "$result_file_name"
 
   input:
   path "raw_result"
   path pair_fp
 
-  //"""
-  //combine_results.R $result_file_name $pair_fp raw_result*
-  //"""
-
   """
-  echo $result_file_name $pair_fp raw_result*
+  combine_results.R $result_file_name $pair_fp raw_result*
   """
 }
 
+// IMPORT SHARED PROCESSES FROM shared_processes.nf
+include { join_precomputations as join_gene_precomputations } from "./shared_processes.nf"
+include { join_precomputations as join_grna_precomputations } from "./shared_processes.nf"
 
-// Define the workflow (DO NOT MODIFY)
+// DEFINE WORKFLOW
 workflow {
   // Step 1: Check inputs for correctness; output channels for gene IDs, grna groups, and pairs
   check_inputs(params.multimodal_metadata_fp,
