@@ -41,7 +41,7 @@ out_l <- vector(mode = "list", length = n_pairs)
 for (i in seq(1, n_pairs)) {
   gene_id <- gene_ids[i]
   grna_group_id <- grna_group_ids[i]
-  # print(paste0("Testing gene ", gene_id, " and gRNA group ", grna_group_id, "."))
+  print(paste0("Testing gene ", gene_id, " and gRNA group ", grna_group_id, "."))
   # Load gene expressions and fitted means (if necessary)
   if (i == 1 || gene_ids[i] != gene_ids[i - 1]) {
     # get fitted means and theta (if applicable)
