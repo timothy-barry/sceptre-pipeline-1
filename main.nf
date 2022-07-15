@@ -24,7 +24,7 @@ formula = params.formula.replaceAll("\\(", "\\\\(").replaceAll("\\)", "\\\\)")
 // PROCESS 1: Check inputs; output the list of gene IDs and grna groups
 process check_inputs {
   time "5m"
-  memory "4 GB"
+  memory "5 GB"
   debug true
 
   input:
@@ -50,7 +50,7 @@ process check_inputs {
 // PROCESS 2: Perform gene precomputation
 process perform_gene_precomputation {
   time { 30.s * params.gene_pod_size }
-  memory "2 GB"
+  memory "3 GB"
 
   input:
   path "multimodal_metadata_fp"
@@ -69,7 +69,7 @@ process perform_gene_precomputation {
 // PROCESS 3: Perform grna precomputation
 process perform_grna_precomputation {
   time { 30.s * params.gene_pod_size }
-  memory "2 GB"
+  memory "3 GB"
 
   input:
   path "multimodal_metadata_fp"
@@ -113,7 +113,7 @@ process combine_results {
   debug true
 
   time "5m"
-  memory "2 GB"
+  memory "5 GB"
 
   publishDir result_dir, mode: "copy"
 
