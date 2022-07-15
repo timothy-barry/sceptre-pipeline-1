@@ -49,4 +49,5 @@ nextflow run main.nf \
  --pair_pod_size $pair_pod_size \
  --grna_modality_name "grna_expression" \
  --n_pairs_to_sample $n_pairs_to_sample \
+ --full_output "true" \
  -resume

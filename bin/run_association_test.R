@@ -17,6 +17,7 @@ pod_id <- as.integer(args[7]) # the pod id
 threshold <- as.integer(args[8]) # threshold
 B <- as.integer(args[9]) # B
 side <- args[10] # sidedness of test
+full_output <- as.logical(args[11]) # full_output
 
 # obtain the pairs to analyze and prepare data
 pairs_to_analyze <- readRDS(pair_to_pod_id_map_fp) |>
@@ -71,7 +72,7 @@ for (i in seq(1, n_pairs)) {
                                                   side = side,
                                                   gene_precomp_size = gene_theta,
                                                   gene_precomp_offsets = gene_fitted_linear_components,
-                                                  full_output = FALSE) |>
+                                                  full_output = full_output) |>
     dplyr::mutate(gene_id = gene_id, grna_group = grna_group_id)
   # add to output list
   out <- data.table::setDT(out) |>

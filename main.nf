@@ -13,6 +13,7 @@ params.n_pairs_to_sample = 0
 params.result_fp = "$PWD/sceptre_result.rds"
 params.gene_modality_name = "gene"
 params.grna_modality_name = "grna"
+params.full_output = "false"
 params.inference_method = "crt" // one of `crt` and `gcm`
 
 // Mild command line argument processing
@@ -104,7 +105,7 @@ process perform_pairwise_association_test {
   path "raw_result.rds"
 
   """
-  run_association_test.R $multimodal_metadata_fp $gene_odm_fp $grna_odm_fp $gene_precomp_matrix_fp $grna_precomp_matrix_fp $pair_to_pod_id_map $pair_pod_id $params.threshold $params.B $params.side
+  run_association_test.R $multimodal_metadata_fp $gene_odm_fp $grna_odm_fp $gene_precomp_matrix_fp $grna_precomp_matrix_fp $pair_to_pod_id_map $pair_pod_id $params.threshold $params.B $params.side $params.full_output
   """
 }
 
