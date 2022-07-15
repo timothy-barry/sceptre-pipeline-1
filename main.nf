@@ -89,7 +89,7 @@ process perform_grna_precomputation {
 // PROCESS 6: Perform pairwise association test
 process perform_pairwise_association_test {
   time { 30.s * params.pair_pod_size }
-  memory "2 GB"
+  memory "3 GB"
 
   input:
   path "multimodal_metadata_fp"
