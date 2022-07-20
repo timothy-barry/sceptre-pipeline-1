@@ -120,9 +120,12 @@ unique_genes <- data.frame(id = unique(as.character(pairs$gene_id)))
 unique_grna_groups <- data.frame(id = unique(as.character(pairs$grna_group)))
 
 # map the unique genes, unique grna groups, and gene-grna group pairs to their pod id
-unique_genes$pod_id <- as.integer(cut(seq(1, nrow(unique_genes)), gene_pod_size))
-unique_grna_groups$pod_id <- as.integer(cut(seq(1, nrow(unique_grna_groups)), grna_group_pod_size))
-pairs$pod_id <- as.integer(cut(seq(1, nrow(pairs)), pair_pod_size))
+get_id_vect <- function(df, pod_size) {
+  as.integer(cut(seq(1, nrow(df)), round(nrow(df)/pod_size)))
+}
+unique_genes$pod_id <- get_id_vect(unique_genes, gene_pod_size)
+unique_grna_groups$pod_id <- get_id_vect(unique_grna_groups, grna_group_pod_size)
+pairs$pod_id <- get_id_vect(pairs, pair_pod_size)
 
 # write vector
 write_vector <- function(file_name, vector) {

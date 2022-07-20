@@ -30,7 +30,7 @@ formula="~p_mito+batch+log(gene_n_nonzero)+log(gene_n_umis)+log(grna_expression_
 gene_pod_size=5
 grna_group_pod_size=5
 pair_pod_size=10
-n_pairs_to_sample=25
+n_pairs_to_sample=50
 
 ########################
 # invoke the NF pipeline
