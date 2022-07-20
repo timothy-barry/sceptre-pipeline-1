@@ -111,8 +111,6 @@ process perform_pairwise_association_test {
 
 // PROCESS 7: Combine results
 process combine_results {
-  debug true
-
   time "5m"
   memory "5 GB"
 
