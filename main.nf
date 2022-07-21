@@ -14,7 +14,7 @@ params.result_fp = "$PWD/sceptre_result.rds"
 params.gene_modality_name = "gene"
 params.grna_modality_name = "grna"
 params.full_output = "false"
-params.inference_method = "gcm" // one of `crt` and `gcm`
+params.inference_method = "crt" // one of `crt` and `gcm`
 
 // Mild command line argument processing
 File out_f = new File(params.result_fp)
