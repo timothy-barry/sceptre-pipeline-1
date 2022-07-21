@@ -14,7 +14,7 @@ params.result_fp = "$PWD/sceptre_result.rds"
 params.gene_modality_name = "gene"
 params.grna_modality_name = "grna"
 params.full_output = "false"
-params.inference_method = "crt" // one of `crt` and `gcm`
+params.inference_method = "gcm" // one of `crt` and `gcm`
 
 // Mild command line argument processing
 File out_f = new File(params.result_fp)
@@ -22,11 +22,11 @@ result_file_name = out_f.getName()
 result_dir = out_f.getAbsoluteFile().getParent()
 formula = params.formula.replaceAll("\\(", "\\\\(").replaceAll("\\)", "\\\\)")
 
+
 // PROCESS 1: Check inputs; output the list of gene IDs and grna groups
 process check_inputs {
   time "5m"
   memory "5 GB"
-  debug true
 
   input:
   path "multimodal_metadata_fp"
@@ -48,6 +48,7 @@ process check_inputs {
   """
 }
 
+
 // PROCESS 2: Perform gene precomputation
 process perform_gene_precomputation {
   time { 30.s * params.gene_pod_size }
@@ -63,9 +64,10 @@ process perform_gene_precomputation {
   path "precomp_sub_matrix.rds"
 
   """
-  perform_precomputation.R "gene" $multimodal_metadata_fp $gene_odm_fp $gene_to_pod_id_map $gene_pod_id $params.threshold
+  perform_precomputation.R "gene" $multimodal_metadata_fp $gene_odm_fp $gene_to_pod_id_map $gene_pod_id $params.threshold $params.inference_method
   """
 }
+
 
 // PROCESS 3: Perform grna precomputation
 process perform_grna_precomputation {
@@ -82,7 +84,7 @@ process perform_grna_precomputation {
   path "precomp_sub_matrix.rds"
 
   """
-  perform_precomputation.R "grna" $multimodal_metadata_fp $grna_odm_fp $grna_group_to_pod_id_map $grna_group_pod_id $params.threshold
+  perform_precomputation.R "grna" $multimodal_metadata_fp $grna_odm_fp $grna_group_to_pod_id_map $grna_group_pod_id $params.threshold $params.inference_method
   """
 }
 
@@ -105,7 +107,7 @@ process perform_pairwise_association_test {
   path "raw_result.rds"
 
   """
-  run_association_test.R $multimodal_metadata_fp $gene_odm_fp $grna_odm_fp $gene_precomp_matrix_fp $grna_precomp_matrix_fp $pair_to_pod_id_map $pair_pod_id $params.threshold $params.B $params.side $params.full_output
+  run_association_test.R $multimodal_metadata_fp $gene_odm_fp $grna_odm_fp $gene_precomp_matrix_fp $grna_precomp_matrix_fp $pair_to_pod_id_map $pair_pod_id $params.threshold $params.B $params.side $params.full_output $params.inference_method
   """
 }
 

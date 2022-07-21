@@ -12,6 +12,11 @@ gene_odm_fp <- args[3] # gene odm fp
 pod_id_map <- args[4] # modality to pod id map
 pod_id <- as.integer(args[5]) # pod id (integer)
 threshold <- as.integer(args[6]) # threshold
+inference_method <- args[7] # inference method, either "crt" or "gcm"
+fam <- switch(inference_method,
+  crt = "nb",
+  gcm = "poisson",
+  stop("Inference method not recognized"))
 
 # load ondisc
 library(ondisc)
@@ -37,7 +42,8 @@ precomp_sub_matrix <- sapply(X = ids, FUN = function(id) {
     expressions <- as.numeric(modality_odm[[id,]])
     # regress expressions onto technical factors
     precomp <- sceptre:::run_gene_precomputation_v2(expressions = expressions,
-                                                    covariate_matrix = global_cell_covariates)
+                                                    covariate_matrix = global_cell_covariates,
+                                                    fam = fam)
   } else if (modality_name == "grna") {
     print(paste0("Regressing gRNA group ", id, " onto covariates."))
     # load data

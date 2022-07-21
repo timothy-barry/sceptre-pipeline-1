@@ -18,6 +18,7 @@ threshold <- as.integer(args[8]) # threshold
 B <- as.integer(args[9]) # B
 side <- args[10] # sidedness of test
 full_output <- as.logical(args[11]) # full_output
+inference_method <- args[12] # inference method (gcm vs crt)
 
 # obtain the pairs to analyze and prepare data
 pairs_to_analyze <- readRDS(pair_to_pod_id_map_fp) |>
@@ -43,40 +44,57 @@ for (i in seq(1, n_pairs)) {
   gene_id <- gene_ids[i]
   grna_group_id <- grna_group_ids[i]
   print(paste0("Testing gene ", gene_id, " and gRNA group ", grna_group_id, "."))
-  # Load gene expressions and fitted means (if necessary)
+  
+  # Load gene expressions and fitted means
   if (i == 1 || gene_ids[i] != gene_ids[i - 1]) {
-    # get fitted means and theta (if applicable)
-    gene_precomp <- fst::read_fst(gene_precomp_matrix_fp, gene_id) |> dplyr::pull()
-    gene_fitted_coefs <- gene_precomp[-length(gene_precomp)]
-    gene_theta <- gene_precomp[length(gene_precomp)]
-    gene_fitted_linear_components <- (global_cell_covariates %*% gene_fitted_coefs)[,1]
-    # get expressions
+    # get expressions and precomp
     gene_expressions <- as.numeric(gene_odm[[gene_id,]])
-  } 
-  # Load grna indicators and fitted means (if necessary)
+    gene_precomp <- fst::read_fst(gene_precomp_matrix_fp, gene_id) |> dplyr::pull()
+    if (inference_method == "gcm") {
+      gene_fitted_means <- exp((global_cell_covariates %*% gene_precomp)[,1])
+      gene_resids <- gene_expressions - gene_fitted_means
+    } else { # crt
+      gene_fitted_coefs <- gene_precomp[-length(gene_precomp)]
+      gene_theta <- gene_precomp[length(gene_precomp)]
+      gene_fitted_linear_components <- (global_cell_covariates %*% gene_fitted_coefs)[,1] 
+    }
+  }
+  
+  # Load grna indicators and fitted means
   if (i == 1 || grna_group_ids[i] != grna_group_ids[i - 1]) {
-    # get fitted means
+    # get indicators and fitted means
     grna_group_fitted_coefs <- fst::read_fst(grna_precomp_matrix_fp, grna_group_id) |> dplyr::pull()
     grna_group_fitted_means <- binomial_obj$linkinv((global_cell_covariates %*% grna_group_fitted_coefs)[,1]) 
-    # get indicators
     grna_group_indicators <- ondisc::load_thresholded_and_grouped_grna(covariate_odm = grna_odm,
                                                                        grna_group = grna_group_id,
                                                                        threshold = threshold) |> as.integer()
-    # sample the sparse matrix of grna presences/absences
-    synthetic_indicator_matrix <- sceptre:::generate_synthetic_grna_data(fitted_probs = grna_group_fitted_means, B = B)
+
+    if (inference_method == "gcm") {
+      grna_group_resids <- grna_group_indicators - grna_group_fitted_means
+    } else {
+      # sample the sparse matrix of grna presences/absences
+      synthetic_indicator_matrix <- sceptre:::generate_synthetic_grna_data(fitted_probs = grna_group_fitted_means, B = B) 
+    }
   }
-  # carry out the dCRT test
-  out <- sceptre:::run_sceptre_using_precomp_fast(expressions = gene_expressions,
-                                                  gRNA_indicators = grna_group_indicators,
-                                                  gRNA_precomp = synthetic_indicator_matrix, 
-                                                  side = side,
-                                                  gene_precomp_size = gene_theta,
-                                                  gene_precomp_offsets = gene_fitted_linear_components,
-                                                  full_output = full_output) |>
-    dplyr::mutate(gene_id = gene_id, grna_group = grna_group_id)
+  
+  # carry out the test
+  if (inference_method == "gcm") {
+    out <- sceptre:::run_sceptre_using_gcm(gene_resids = gene_resids,
+                                           gRNA_resids = grna_group_resids,
+                                           side = side)
+  } else { # crt
+    out <- sceptre:::run_sceptre_using_precomp_fast(expressions = gene_expressions,
+                                                    gRNA_indicators = grna_group_indicators,
+                                                    gRNA_precomp = synthetic_indicator_matrix, 
+                                                    side = side,
+                                                    gene_precomp_size = gene_theta,
+                                                    gene_precomp_offsets = gene_fitted_linear_components,
+                                                    full_output = full_output)
+  }
+  
   # add to output list
   out <- data.table::setDT(out) |>
-    dplyr::mutate(gene_id = factor(gene_id), grna_group = factor(grna_group))
+    dplyr::mutate(gene_id = factor(gene_id), grna_group = factor(grna_group_id))
   out_l[[i]] <- out
 }
 

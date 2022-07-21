@@ -12,5 +12,5 @@ results <- lapply(X = raw_results, FUN = readRDS) |> data.table::rbindlist()
 pairs <- readRDS(pairs_fp)
 data.table::setDF(results)
 out <- dplyr::left_join(x = pairs, y = results, by = c("gene_id", "grna_group")) |>
-  dplyr::relocate(gene_id, grna_group, p_value, z_value, log_fold_change)
+  dplyr::relocate(gene_id, grna_group, p_value, z_value)
 saveRDS(object = out, file = result_file_name)
