@@ -51,5 +51,4 @@ nextflow run main.nf \
  --n_pairs_to_sample $n_pairs_to_sample \
  --full_output "true" \
  --result_fp "$PWD/sceptre_result_crt.rds" \
- --inference_method "crt" \
- -resume
+ --inference_method "crt"

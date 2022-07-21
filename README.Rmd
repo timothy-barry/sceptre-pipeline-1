@@ -28,11 +28,11 @@ This repository contains the `sceptre` Nextflow pipeline. The `sceptre` Nextflow
 
     # in R
     install.packages("devtools")
-    devtools::install_github("katsevich-lab/sceptre")
     setRepositories(ind = 1:4)
+    devtools::install_github("katsevich-lab/sceptre")
     devtools::install_github("timothy-barry/ondisc")
 
--   Install the the `sceptre` nextflow pipeline.
+-   Install the the `sceptre` Nextflow pipeline.
 
 <!-- -->
 
@@ -45,36 +45,36 @@ We describe the `sceptre` pipeline arguments here. As an example we use data fro
 
 ## Input files
 
-Four input files are required: (i) the multimodal ondisc matrix metadata file (`multimodal_metadata_fp`), (ii) the backing .odm file of the gene ondisc matrix (`gene_odm_fp`), (iii) the backing .odm file of the gRNA ondisc matrix (`gRNA_odm_fp`), and (iv) a data frame containing the set of gene-gRNA group pairs to analyze (`pair_fp`). On my (Tim's) machine these files are located in the following places:
+Four input files are required: (i) the multimodal ondisc matrix metadata file (`multimodal_metadata_fp`), (ii) the backing .odm file of the gene ondisc matrix (`gene_odm_fp`), (iii) the backing .odm file of the gRNA ondisc matrix (`grna_odm_fp`), and (iv) a data frame containing the set of gene-gRNA group pairs to analyze (`pair_fp`). On my (Tim's) machine these files are located in the following places:
 
 ```{r}
 # in R
-gasp_offsite_dir <- .get_config_path("LOCAL_GASPERINI_2019_DATA_DIR")
-multimodal_metadata_fp <- paste0(gasp_offsite_dir, "at-scale/processed/multimodal/multimodal_metadata.rds")
-gene_odm_fp <- paste0(gasp_offsite_dir, "at-scale/processed/gene/gasp_scale_gene_expressions.odm")
-gRNA_odm_fp <- paste0(gasp_offsite_dir, "at-scale/processed/gRNA_ungrouped/gasp_scale_gRNA_counts_ungrouped.odm")
-pair_fp <- paste0(gasp_offsite_dir, "at-scale/processed/multimodal/pairs.rds")
+gasp_offsite_dir <- paste0(.get_config_path("LOCAL_SCEPTRE2_DATA_DIR"), "data/gasperini/at_scale/")
+multimodal_metadata_fp <- paste0(gasp_offsite_dir, "multimodal_metadata.rds")
+gene_odm_fp <- paste0(gasp_offsite_dir, "gene/matrix.odm")
+grna_odm_fp <- paste0(gasp_offsite_dir, "grna_expression/matrix.odm")
+pair_fp <- paste0(gasp_offsite_dir, "neg_control_pairs.rds")
 ```
 
 The multimodal ondisc matrix should satisfy the following conditions.
 
--   The multimodal ondisc matrix should have modalities named "gene" and "gRNA".
+-   The multimodal ondisc matrix should have modalities for the gene and gRNA data.
 
 ```{r}
 # in R
 library(ondisc)
-crispr_experiment <- read_multimodal_odm(odm_fps = c(gene_odm_fp, gRNA_odm_fp),
+crispr_experiment <- read_multimodal_odm(odm_fps = c(gene_odm_fp, grna_odm_fp),
                                          multimodal_metadata_fp = multimodal_metadata_fp)
 gene_modality <- get_modality(crispr_experiment, "gene")
-gRNA_modality <- get_modality(crispr_experiment, "gRNA")
+grna_modality <- get_modality(crispr_experiment, "grna_expression")
 ```
 
--   The gRNA modality should be an integer-valued matrix of gRNA expressions or (less commonly) a logical matrix of gRNA-to-cell assignments. The feature covariate matrix of the gRNA modality should contain a column called `gRNA_group` indicating the "group" to which each gRNA belongs. Typically, targeting gRNAs are grouped according to the site that they target, and non-targeting gRNAs are grouped randomly into sets of size two or three.
+-   The gRNA modality should be an integer-valued matrix of gRNA expressions or (less commonly) a logical matrix of gRNA-to-cell assignments. The feature covariate matrix of the gRNA modality should contain a column called `grna_group` indicating the "group" to which each gRNA belongs. Typically, targeting gRNAs are grouped according to the site that they target, and non-targeting gRNAs are grouped randomly into sets of size two or three.
 
 ```{r}
 # in R
-gRNA_modality
-gRNA_modality |>
+grna_modality
+grna_modality |>
   get_feature_covariates() |>
   head()
 ```
@@ -85,7 +85,7 @@ gRNA_modality |>
 gene_modality
 ```
 
-Next, the data frame containing the pairs to analyze should contain columns `gene_id` and `gRNA_group`. Additional columns are permitted but ignored.
+Next, the data frame containing the pairs to analyze should contain columns `gene_id` and `grna_group`. Additional columns are permitted but ignored.
 
 ```{r}
 # in R
@@ -93,12 +93,12 @@ pairs_df <- readRDS(pair_fp)
 head(pairs_df)
 ```
 
-The gene IDs within the `gene_id` column should be a subset of the feature IDs of the gene modality; meanwhile, the gRNA groups within the `gRNA_group` column should be a subset of the entries of the `gRNA_group` column of the feature covariate matrix of the gRNA modality.
+The gene IDs within the `gene_id` column should be a subset of the feature IDs of the gene modality; meanwhile, the grna groups within the `grna_group` column should be a subset of the entries of the `grna_group` column of the feature covariate matrix of the gRNA modality.
 
 ```{r}
 # in R
 all(pairs_df$gene_id %in% get_feature_ids(gene_modality)) # gene ID check
-all(pairs_df$gRNA_group  %in% get_feature_covariates(gRNA_modality)$gRNA_group) # gRNA group check
+all(pairs_df$grna_group  %in% get_feature_covariates(grna_modality)$grna_group) # gRNA group check
 ```
 
 ## Output file
@@ -114,9 +114,9 @@ The `sceptre` pipeline accepts several additional arguments, ordered here from m
 <!-- -->
 
     # in bash
-    formula="~gene_p_mito+gene_batch+log(gene_n_nonzero)+log(gene_n_umis)+log(gRNA_n_nonzero)+log(gRNA_n_umis)"
+    formula="~gene_p_mito+gene_batch+log(gene_n_nonzero)+log(gene_n_umis)+log(grna_n_nonzero)+log(grna_n_umis)"
 
-The variables in this formula (`gene_p_mito`, `gene_batch`, `gene_n_nonzero`, `gene_n_umis`, `gRNA_n_nonzero`, and `gRNA_n_umis`) are columns of the global cell covariate matrix:
+The variables in this formula (`gene_p_mito`, `gene_batch`, `gene_n_nonzero`, `gene_n_umis`, `grna_n_nonzero`, and `grna_n_umis`) are columns of the global cell covariate matrix:
 
 ```{r}
 # in R
@@ -126,6 +126,7 @@ crispr_experiment |> get_cell_covariates() |> head()
 The default behavior is to adjust for all (untransformed) variables stored within the global cell covariate matrix.
 
 **Note**: The formula string should contain **no** white spaces (e.g., spaces, tabs, etc.).
+-   ``:
 
 -   `threshold`: the threshold to use to assign gRNAs to cells. For a given cell and gRNA, if the UMI count of the gRNA within the cell is equal to or greater than the threshold, then the gRNA is taken to be present in the cell. The default is 3.
 
@@ -135,7 +136,7 @@ The default behavior is to adjust for all (untransformed) variables stored withi
 
 -   `n_pairs_to_sample`: the number of randomly-selected gene-gRNA group pairs on which to run `sceptre`. This parameter is for debugging purposes; often, it is useful to run the pipeline on (say) 25 randomly-selected pairs to ensure that the pipeline is set up correctly. The default is to run the pipeline on the entireset of pairs, i.e., to not subsample at all.
 
--   `gene_pod_size`, `gRNA_group_pod_size`, and `pair_pod_size`: parameters that control the amount of parallelization. At a high level the pipeline works as follows: first, all genes are regressed onto the technical factors; next, all gRNA groups are regressed onto the technical factors; finally, all pairs of genes and gRNA groups (as specified in the pairs data frame) are tested for association. `gene_pod_size` (resp., `gRNA_group_pod_size`) is the number of genes (resp., gRNA groups) to regress onto the technical factors in a given Nextflow process. Meanwhile, `pair_pod_size` is the number of gene-gRNA group pairs to test for association in a given Nextflow process. The default values are 50, 50, and 100, respectively.
+-   `gene_pod_size`, `grna_group_pod_size`, and `pair_pod_size`: parameters that control the amount of parallelization. At a high level the pipeline works as follows: first, all genes are regressed onto the technical factors; next, all gRNA groups are regressed onto the technical factors; finally, all pairs of genes and grna groups (as specified in the pairs data frame) are tested for association. `gene_pod_size` (resp., `grna_group_pod_size`) is the number of genes (resp., gRNA groups) to regress onto the technical factors in a given Nextflow process. Meanwhile, `pair_pod_size` is the number of gene-gRNA group pairs to test for association in a given Nextflow process. The default values are 50, 50, and 100, respectively.
 
 ## Invoking the pipeline
 
@@ -154,4 +155,4 @@ The bash script `example_launch.sh` contains an example invocation of the pipeli
 
 # Interpreting the results
 
-The results data frame contains columns `gene_id`, `gRNA_group`, `p_value`, `z_value`, and `log_fold_change`. The results can be analyzed using the tips outlined in Step 7 ("Analyze the Results") of the [in-memory sceptre tutorial](https://katsevich-lab.github.io/sceptre/articles/using_sceptre_v2.html).
+The results data frame contains columns `gene_id`, `grna_group`, `p_value`, `z_value`, and `log_fold_change`. The results can be analyzed using the tips outlined in Step 7 ("Analyze the Results") of the [in-memory sceptre tutorial](https://katsevich-lab.github.io/sceptre/articles/using_sceptre_v2.html).

@@ -22,11 +22,11 @@ interface to `sceptre` in most cases.
 
     # in R
     install.packages("devtools")
-    devtools::install_github("katsevich-lab/sceptre")
     setRepositories(ind = 1:4)
+    devtools::install_github("katsevich-lab/sceptre")
     devtools::install_github("timothy-barry/ondisc")
 
--   Install the the `sceptre` nextflow pipeline.
+-   Install the the `sceptre` Nextflow pipeline.
 
 <!-- -->
 
@@ -46,58 +46,65 @@ genetic screens” by Gasperini et al., 2019.
 Four input files are required: (i) the multimodal ondisc matrix metadata
 file (`multimodal_metadata_fp`), (ii) the backing .odm file of the gene
 ondisc matrix (`gene_odm_fp`), (iii) the backing .odm file of the gRNA
-ondisc matrix (`gRNA_odm_fp`), and (iv) a data frame containing the set
+ondisc matrix (`grna_odm_fp`), and (iv) a data frame containing the set
 of gene-gRNA group pairs to analyze (`pair_fp`). On my (Tim’s) machine
 these files are located in the following places:
 
 ``` r
 # in R
-gasp_offsite_dir <- .get_config_path("LOCAL_GASPERINI_2019_DATA_DIR")
-multimodal_metadata_fp <- paste0(gasp_offsite_dir, "at-scale/processed/multimodal/multimodal_metadata.rds")
-gene_odm_fp <- paste0(gasp_offsite_dir, "at-scale/processed/gene/gasp_scale_gene_expressions.odm")
-gRNA_odm_fp <- paste0(gasp_offsite_dir, "at-scale/processed/gRNA_ungrouped/gasp_scale_gRNA_counts_ungrouped.odm")
-pair_fp <- paste0(gasp_offsite_dir, "at-scale/processed/multimodal/pairs.rds")
+gasp_offsite_dir <- paste0(.get_config_path("LOCAL_SCEPTRE2_DATA_DIR"), "data/gasperini/at_scale/")
+multimodal_metadata_fp <- paste0(gasp_offsite_dir, "multimodal_metadata.rds")
+gene_odm_fp <- paste0(gasp_offsite_dir, "gene/matrix.odm")
+grna_odm_fp <- paste0(gasp_offsite_dir, "grna_expression/matrix.odm")
+pair_fp <- paste0(gasp_offsite_dir, "neg_control_pairs.rds")
 ```
 
 The multimodal ondisc matrix should satisfy the following conditions.
 
 -   The multimodal ondisc matrix should have modalities named “gene” and
-    “gRNA”.
+    “grna”.
 
 ``` r
 # in R
 library(ondisc)
-crispr_experiment <- read_multimodal_odm(odm_fps = c(gene_odm_fp, gRNA_odm_fp),
+crispr_experiment <- read_multimodal_odm(odm_fps = c(gene_odm_fp, grna_odm_fp),
                                          multimodal_metadata_fp = multimodal_metadata_fp)
 gene_modality <- get_modality(crispr_experiment, "gene")
-gRNA_modality <- get_modality(crispr_experiment, "gRNA")
+grna_modality <- get_modality(crispr_experiment, "grna_expression")
 ```
 
 -   The gRNA modality should be an integer-valued matrix of gRNA
     expressions or (less commonly) a logical matrix of gRNA-to-cell
     assignments. The feature covariate matrix of the gRNA modality
-    should contain a column called `gRNA_group` indicating the “group”
+    should contain a column called `grna_group` indicating the “group”
     to which each gRNA belongs. Typically, targeting gRNAs are grouped
     according to the site that they target, and non-targeting gRNAs are
     grouped randomly into sets of size two or three.
 
 ``` r
 # in R
-gRNA_modality
+grna_modality
 #> A covariate_ondisc_matrix with the following components:
-#>  An integer-valued ondisc_matrix with 13189 features and 207320 cells.
+#>  An integer-valued ondisc_matrix with 13182 features and 206271 cells.
 #>  A cell covariate matrix with columns n_nonzero, n_umis.
-#>  A feature covariate matrix with columns mean_expression, n_nonzero, gRNA_group.
-gRNA_modality |>
+#>  A feature covariate matrix with columns mean_expression, n_nonzero, grna_group, target_type, target, target_gene.
+grna_modality |>
   get_feature_covariates() |>
   head()
-#>                      mean_expression n_nonzero   gRNA_group
-#> AAACCGCTCCCGAGCACGGG      0.08524339      1450 SH3BGRL3_TSS
-#> AAATAGTGGGAAGATTCGTG      0.02863151       556 MTRNR2L8_TSS
-#> AACACACCACGGAGGAGTGG      0.06421350       987   FAM83A_TSS
-#> AACAGCCCGGCCGGCCAAGG      0.07196465      1192   ZNF593_TSS
-#> AACGAGAGACTGCTTGCTGG      0.03283749       693   ATPIF1_TSS
-#> AACGGCTCGGAAGCCTAGGG      0.07587158      1251    TIPRL_TSS
+#>                      mean_expression n_nonzero   grna_group target_type
+#> AAACCGCTCCCGAGCACGGG      0.08524339      1450 SH3BGRL3_TSS    gene_tss
+#> AAATAGTGGGAAGATTCGTG      0.02863151       556 MTRNR2L8_TSS    gene_tss
+#> AACACACCACGGAGGAGTGG      0.06421350       987   FAM83A_TSS    gene_tss
+#> AACAGCCCGGCCGGCCAAGG      0.07196465      1192   ZNF593_TSS    gene_tss
+#> AACGAGAGACTGCTTGCTGG      0.03283749       693   ATPIF1_TSS    gene_tss
+#> AACGGCTCGGAAGCCTAGGG      0.07587158      1251    TIPRL_TSS    gene_tss
+#>                                        target     target_gene
+#> AAACCGCTCCCGAGCACGGG   chr1:26605667-26605668 ENSG00000142669
+#> AAATAGTGGGAAGATTCGTG  chr11:10530735-10530736 ENSG00000255823
+#> AACACACCACGGAGGAGTGG chr8:124191287-124191288 ENSG00000147689
+#> AACAGCCCGGCCGGCCAAGG   chr1:26496362-26496363 ENSG00000142684
+#> AACGAGAGACTGCTTGCTGG   chr1:28562620-28562621 ENSG00000130770
+#> AACGGCTCGGAAGCCTAGGG chr1:168148171-168148172 ENSG00000143155
 ```
 
 -   The gene modality should be an integer-valued matrix of gene
@@ -106,39 +113,39 @@ gRNA_modality |>
 ``` r
 gene_modality
 #> A covariate_ondisc_matrix with the following components:
-#>  An integer-valued ondisc_matrix with 13135 features and 207320 cells.
+#>  An integer-valued ondisc_matrix with 12129 features and 206271 cells.
 #>  A cell covariate matrix with columns n_nonzero, n_umis, p_mito, batch.
 #>  A feature covariate matrix with columns mean_expression, coef_of_variation, n_nonzero.
 ```
 
 Next, the data frame containing the pairs to analyze should contain
-columns `gene_id` and `gRNA_group`. Additional columns are permitted but
+columns `gene_id` and `grna_group`. Additional columns are permitted but
 ignored.
 
 ``` r
 # in R
 pairs_df <- readRDS(pair_fp)
 head(pairs_df)
-#>           gene_id gRNA_group site_type
-#> 1 ENSG00000008256   ACTB_TSS       TSS
-#> 2 ENSG00000011275   ACTB_TSS       TSS
-#> 3 ENSG00000075618   ACTB_TSS       TSS
-#> 4 ENSG00000075624   ACTB_TSS   selfTSS
-#> 5 ENSG00000086232   ACTB_TSS       TSS
-#> 6 ENSG00000106305   ACTB_TSS       TSS
+#>           gene_id grna_group
+#> 1 ENSG00000238009  random_24
+#> 2 ENSG00000237683  random_24
+#> 3 ENSG00000228463  random_24
+#> 4 ENSG00000237094  random_24
+#> 5 ENSG00000235373  random_24
+#> 6 ENSG00000228327  random_24
 ```
 
 The gene IDs within the `gene_id` column should be a subset of the
-feature IDs of the gene modality; meanwhile, the gRNA groups within the
-`gRNA_group` column should be a subset of the entries of the
-`gRNA_group` column of the feature covariate matrix of the gRNA
+feature IDs of the gene modality; meanwhile, the grna groups within the
+`grna_group` column should be a subset of the entries of the
+`grna_group` column of the feature covariate matrix of the gRNA
 modality.
 
 ``` r
 # in R
 all(pairs_df$gene_id %in% get_feature_ids(gene_modality)) # gene ID check
 #> [1] TRUE
-all(pairs_df$gRNA_group  %in% get_feature_covariates(gRNA_modality)$gRNA_group) # gRNA group check
+all(pairs_df$grna_group  %in% get_feature_covariates(grna_modality)$grna_group) # gRNA group check
 #> [1] TRUE
 ```
 
@@ -160,29 +167,50 @@ here from most important to least important.
 <!-- -->
 
     # in bash
-    formula="~gene_p_mito+gene_batch+log(gene_n_nonzero)+log(gene_n_umis)+log(gRNA_n_nonzero)+log(gRNA_n_umis)"
+    formula="~gene_p_mito+gene_batch+log(gene_n_nonzero)+log(gene_n_umis)+log(grna_n_nonzero)+log(grna_n_umis)"
 
 The variables in this formula (`gene_p_mito`, `gene_batch`,
-`gene_n_nonzero`, `gene_n_umis`, `gRNA_n_nonzero`, and `gRNA_n_umis`)
+`gene_n_nonzero`, `gene_n_umis`, `grna_n_nonzero`, and `grna_n_umis`)
 are columns of the global cell covariate matrix:
 
 ``` r
 # in R
 crispr_experiment |> get_cell_covariates() |> head() 
-#>                                  gene_n_nonzero gene_n_umis gene_p_mito
-#> AAACCTGAGAGGTACC-1_1A_1_SI-GA-E2           3549       17566 0.058786706
-#> AAACCTGAGTCAATAG-1_1A_1_SI-GA-E2           2543        8917 0.036086518
-#> AAACCTGCAAACAACA-1_1A_1_SI-GA-E2           3191       14626 0.069823051
-#> AAACCTGCACTTCTGC-1_1A_1_SI-GA-E2           4539       22783 0.026186508
-#> AAACCTGCATGTAGTC-1_1A_1_SI-GA-E2           2605       10124 0.007991318
-#> AAACCTGGTAGCGCAA-1_1A_1_SI-GA-E2           2187        9743 0.022356681
-#>                                    gene_batch gRNA_n_nonzero gRNA_n_umis
-#> AAACCTGAGAGGTACC-1_1A_1_SI-GA-E2 prep_batch_1             84         994
-#> AAACCTGAGTCAATAG-1_1A_1_SI-GA-E2 prep_batch_1             44         347
-#> AAACCTGCAAACAACA-1_1A_1_SI-GA-E2 prep_batch_1             82         930
-#> AAACCTGCACTTCTGC-1_1A_1_SI-GA-E2 prep_batch_1             56         579
-#> AAACCTGCATGTAGTC-1_1A_1_SI-GA-E2 prep_batch_1             71        1098
-#> AAACCTGGTAGCGCAA-1_1A_1_SI-GA-E2 prep_batch_1             79        1276
+#>                                  gene_n_nonzero gene_n_umis
+#> AAACCTGAGAGGTACC-1_1A_1_SI-GA-E2           3549       17566
+#> AAACCTGAGTCAATAG-1_1A_1_SI-GA-E2           2543        8917
+#> AAACCTGCAAACAACA-1_1A_1_SI-GA-E2           3191       14626
+#> AAACCTGCACTTCTGC-1_1A_1_SI-GA-E2           4539       22783
+#> AAACCTGCATGTAGTC-1_1A_1_SI-GA-E2           2605       10124
+#> AAACCTGGTAGCGCAA-1_1A_1_SI-GA-E2           2187        9743
+#>                                  grna_assignment_n_nonzero
+#> AAACCTGAGAGGTACC-1_1A_1_SI-GA-E2                        68
+#> AAACCTGAGTCAATAG-1_1A_1_SI-GA-E2                        31
+#> AAACCTGCAAACAACA-1_1A_1_SI-GA-E2                        63
+#> AAACCTGCACTTCTGC-1_1A_1_SI-GA-E2                        41
+#> AAACCTGCATGTAGTC-1_1A_1_SI-GA-E2                        38
+#> AAACCTGGTAGCGCAA-1_1A_1_SI-GA-E2                        58
+#>                                  grna_expression_n_nonzero
+#> AAACCTGAGAGGTACC-1_1A_1_SI-GA-E2                        84
+#> AAACCTGAGTCAATAG-1_1A_1_SI-GA-E2                        44
+#> AAACCTGCAAACAACA-1_1A_1_SI-GA-E2                        82
+#> AAACCTGCACTTCTGC-1_1A_1_SI-GA-E2                        56
+#> AAACCTGCATGTAGTC-1_1A_1_SI-GA-E2                        71
+#> AAACCTGGTAGCGCAA-1_1A_1_SI-GA-E2                        79
+#>                                  grna_expression_n_umis        batch
+#> AAACCTGAGAGGTACC-1_1A_1_SI-GA-E2                    994 prep_batch_1
+#> AAACCTGAGTCAATAG-1_1A_1_SI-GA-E2                    347 prep_batch_1
+#> AAACCTGCAAACAACA-1_1A_1_SI-GA-E2                    930 prep_batch_1
+#> AAACCTGCACTTCTGC-1_1A_1_SI-GA-E2                    579 prep_batch_1
+#> AAACCTGCATGTAGTC-1_1A_1_SI-GA-E2                   1098 prep_batch_1
+#> AAACCTGGTAGCGCAA-1_1A_1_SI-GA-E2                   1276 prep_batch_1
+#>                                       p_mito
+#> AAACCTGAGAGGTACC-1_1A_1_SI-GA-E2 0.058786706
+#> AAACCTGAGTCAATAG-1_1A_1_SI-GA-E2 0.036086518
+#> AAACCTGCAAACAACA-1_1A_1_SI-GA-E2 0.069823051
+#> AAACCTGCACTTCTGC-1_1A_1_SI-GA-E2 0.026186508
+#> AAACCTGCATGTAGTC-1_1A_1_SI-GA-E2 0.007991318
+#> AAACCTGGTAGCGCAA-1_1A_1_SI-GA-E2 0.022356681
 ```
 
 The default behavior is to adjust for all (untransformed) variables
@@ -209,13 +237,13 @@ spaces, tabs, etc.).
     correctly. The default is to run the pipeline on the entireset of
     pairs, i.e., to not subsample at all.
 
--   `gene_pod_size`, `gRNA_group_pod_size`, and `pair_pod_size`:
+-   `gene_pod_size`, `grna_group_pod_size`, and `pair_pod_size`:
     parameters that control the amount of parallelization. At a high
     level the pipeline works as follows: first, all genes are regressed
     onto the technical factors; next, all gRNA groups are regressed onto
-    the technical factors; finally, all pairs of genes and gRNA groups
+    the technical factors; finally, all pairs of genes and grna groups
     (as specified in the pairs data frame) are tested for association.
-    `gene_pod_size` (resp., `gRNA_group_pod_size`) is the number of
+    `gene_pod_size` (resp., `grna_group_pod_size`) is the number of
     genes (resp., gRNA groups) to regress onto the technical factors in
     a given Nextflow process. Meanwhile, `pair_pod_size` is the number
     of gene-gRNA group pairs to test for association in a given Nextflow
@@ -242,7 +270,7 @@ scheduler, `sbatch` on a cluster running a SLURM scheduler, etc.
 
 # Interpreting the results
 
-The results data frame contains columns `gene_id`, `gRNA_group`,
+The results data frame contains columns `gene_id`, `grna_group`,
 `p_value`, `z_value`, and `log_fold_change`. The results can be analyzed
 using the tips outlined in Step 7 (“Analyze the Results”) of the
 [in-memory sceptre
