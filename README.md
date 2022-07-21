@@ -61,8 +61,8 @@ pair_fp <- paste0(gasp_offsite_dir, "neg_control_pairs.rds")
 
 The multimodal ondisc matrix should satisfy the following conditions.
 
--   The multimodal ondisc matrix should have modalities named “gene” and
-    “grna”.
+-   The multimodal ondisc matrix should have modalities for the gene and
+    gRNA data.
 
 ``` r
 # in R
@@ -219,6 +219,12 @@ stored within the global cell covariate matrix.
 **Note**: The formula string should contain **no** white spaces (e.g.,
 spaces, tabs, etc.).
 
+-   `gene_modality_name`: the name of the gene modality within the
+    multimodal ondisc matrix (“gene”, in the example above)
+
+-   `grna_modality_name`: the name of the gRNA modality within the
+    multimodal ondisc matrix (“grna_expression”, in the example above)
+
 -   `threshold`: the threshold to use to assign gRNAs to cells. For a
     given cell and gRNA, if the UMI count of the gRNA within the cell is
     equal to or greater than the threshold, then the gRNA is taken to be
@@ -230,13 +236,6 @@ spaces, tabs, etc.).
 -   `side`: the sidedness of the test, one of “left”, “right”, or
     “both”. The default is “both”.
 
--   `n_pairs_to_sample`: the number of randomly-selected gene-gRNA group
-    pairs on which to run `sceptre`. This parameter is for debugging
-    purposes; often, it is useful to run the pipeline on (say) 25
-    randomly-selected pairs to ensure that the pipeline is set up
-    correctly. The default is to run the pipeline on the entireset of
-    pairs, i.e., to not subsample at all.
-
 -   `gene_pod_size`, `grna_group_pod_size`, and `pair_pod_size`:
     parameters that control the amount of parallelization. At a high
     level the pipeline works as follows: first, all genes are regressed
@@ -247,7 +246,23 @@ spaces, tabs, etc.).
     genes (resp., gRNA groups) to regress onto the technical factors in
     a given Nextflow process. Meanwhile, `pair_pod_size` is the number
     of gene-gRNA group pairs to test for association in a given Nextflow
-    process. The default values are 50, 50, and 100, respectively.
+    process. The default values are 200, 200, and 5000, respectively.
+
+-   `n_pairs_to_sample`: the number of randomly-selected gene-gRNA group
+    pairs on which to run `sceptre`. This parameter is for debugging and
+    testing purposes; often, it is useful to run the pipeline on (say)
+    25 randomly-selected pairs to ensure that the pipeline is set up
+    correctly. The default is to run the pipeline on the entire set of
+    pairs, i.e., to not subsample at all.
+
+-   `full_output`: “true” or “false” (default “false”); output the
+    resampled test statistics alongside the p-value, z-score, and log
+    fold change?
+
+-   `inference_method`: (**EXPERIMENTAL**) “crt” or “gcm” (default
+    “crt”); perform inference using the vanilla conditional
+    randomization test (“crt”) or the faster (but possibly less
+    accurate) generalized covariance measure (“gcm”)?
 
 ## Invoking the pipeline
 
