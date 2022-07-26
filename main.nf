@@ -27,6 +27,7 @@ formula = params.formula.replaceAll("\\(", "\\\\(").replaceAll("\\)", "\\\\)")
 process check_inputs {
   time "5m"
   memory "5 GB"
+  debug true
 
   input:
   path "multimodal_metadata_fp"
@@ -141,7 +142,6 @@ workflow {
                params.gene_odm_fp,
                params.grna_odm_fp,
                params.pair_fp)
-
   // Step 2: Clean up the output channels of the first process
   gene_pods = check_inputs.out.gene_pods_ch.splitText().map{it.trim()}
   grna_groups_pods = check_inputs.out.grna_group_pods_ch.splitText().map{it.trim()}

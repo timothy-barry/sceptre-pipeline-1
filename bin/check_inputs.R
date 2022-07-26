@@ -121,8 +121,15 @@ unique_grna_groups <- data.frame(id = unique(as.character(pairs$grna_group)))
 
 # map the unique genes, unique grna groups, and gene-grna group pairs to their pod id
 get_id_vect <- function(df, pod_size) {
-  as.integer(cut(seq(1, nrow(df)), round(nrow(df)/pod_size)))
+  breaks <- round(nrow(df)/pod_size)
+  if (breaks >= 2) {
+    as.integer(cut(seq(1, nrow(df)), breaks)) 
+  } else {
+    rep(1L, nrow(df))
+  }
 }
+
+
 unique_genes$pod_id <- get_id_vect(unique_genes, gene_pod_size)
 unique_grna_groups$pod_id <- get_id_vect(unique_grna_groups, grna_group_pod_size)
 pairs$pod_id <- get_id_vect(pairs, pair_pod_size)
