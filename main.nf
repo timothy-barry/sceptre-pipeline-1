@@ -27,7 +27,6 @@ formula = params.formula.replaceAll("\\(", "\\\\(").replaceAll("\\)", "\\\\)")
 process check_inputs {
   time "5m"
   memory "5 GB"
-  debug true
 
   input:
   path "multimodal_metadata_fp"
